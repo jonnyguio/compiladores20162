@@ -18,20 +18,21 @@ CSTRING "'"([^\n']|"''")*"'"
 {LINHA}    { nlinha++; }
 {DELIM}    {}
 
-"Var"      { yylval = Atributos( yytext ); return TK_VAR; }
-"Program"  { yylval = Atributos( yytext ); return TK_PROGRAM; }
-"Begin"    { yylval = Atributos( yytext ); return TK_BEGIN; }
-"End"      { yylval = Atributos( yytext ); return TK_END; }
-"WriteLn"  { yylval = Atributos( yytext ); return TK_WRITELN; }
-"If"       { yylval = Atributos( yytext ); return TK_IF; }
-"Then"       { yylval = Atributos( yytext ); return TK_THEN; }
-"Else"       { yylval = Atributos( yytext ); return TK_ELSE; }
+"Var"      	{ yylval = Atributos( yytext ); return TK_VAR; }
+"Program"  	{ yylval = Atributos( yytext ); return TK_PROGRAM; }
+"Hora do Barulho" 	{ yylval = Atributos( yytext ); return TK_BEGIN; }
+"Hoje, na sessao da tarde" 	{ yylval = Atributos( yytext ); return TK_END; }
+"Escreva"  	{ yylval = Atributos( yytext ); return TK_WRITELN; }
+"Se"       	{ yylval = Atributos( yytext ); return TK_IF; }
+"Entao"       { yylval = Atributos( yytext ); return TK_THEN; }
+"So que nao"{ yylval = Atributos( yytext ); return TK_ELSE; }
 
-":="       { yylval = Atributos( yytext ); return TK_ATRIB; }
+"="       { yylval = Atributos( yytext ); return TK_ATRIB; }
+
 "<="       { yylval = Atributos( yytext ); return TK_MEIG; }
 ">="       { yylval = Atributos( yytext ); return TK_MAIG; }
-"<>"       { yylval = Atributos( yytext ); return TK_DIF; }
-"And"       { yylval = Atributos( yytext ); return TK_AND; }
+"!="       { yylval = Atributos( yytext ); return TK_DIF; }
+"&&"       { yylval = Atributos( yytext ); return TK_AND; }
 
 
 {CSTRING}  { yylval = Atributos( troca_aspas( yytext ), "string" ); 

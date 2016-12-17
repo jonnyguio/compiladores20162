@@ -78,7 +78,7 @@ S : PROGRAM DECLS MAIN
 PROGRAM : TK_PROGRAM TK_ID ';' 
           { $$.c = ""; }
         ; 
-  
+
 DECLS : DECL DECLS
         { $$.c = $1.c + $2.c; }
       | 
