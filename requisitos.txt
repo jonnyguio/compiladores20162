@@ -1,0 +1,41 @@
+Para obter 5 pontos:
+
+1) Tipos: int, char, boolean, double, string
+
+2) Estruturas de controle: if/else, for, while, do-while, switch.
+
+3) Array bi-dimensional
+
+4) blocos
+
+5) Variáveis locais e globais, com escopo.
+
+6) Expressões com precedência e associatividade de operadores
+
+7) funções com parametros por valor e referência
+
+8) concatenação de strings com operador "+"
+
+9) entrada e saida padrao (printf e scanf ou cin/cout)
+
+9) verificação de tipos
+
+10) verificação do número e tipo dos parâmetros de funções
+
+11) Operadores básicos: ( ) + - / * % && || ! > < >= <= == != 
+
+
+
+
+
+Para nota maior que 5
+
+12) Operadores relacionais para string: "a" < "b", "Ola" != "Olá" etc
+
+13) Verificar limite de arrays e matrizes.
+
+14) Operador de comparacao de arrays: igual e diferente
+
+15) Operador "pertence": if( x in tab ), onde tab é um array.
+
+16) Rodar os programas exemplo: mdc recursivo, multiplicacao de matrizes e concatenação de strings (serão enviados em breve).
