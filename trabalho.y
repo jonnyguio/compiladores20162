@@ -630,8 +630,8 @@ Tipo tipo_resultado( Tipo t1, string opr, Tipo t3 ) {
 Atributos gera_codigo_not( Atributos s1 ) {
     Atributos ret;
 
-    ret.t = consulta_ts( "b" );
-    ret.v = gera_nome_var_temp( ret.t.tipo_base );
+    ret.t = Tipo("b");
+    ret.v = gera_nome_var_temp( "b" );
     ret.c = s1.c + " " + ret.v + " = !" + s1.v + ";\n";
 
     return ret;
