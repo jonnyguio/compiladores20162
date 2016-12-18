@@ -413,7 +413,6 @@ CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO TK_BEGIN CMDS TK_END
             if ($4.t.tipo_base != "i" || $6.t.tipo_base != "i")
                 erro("Tentando fazer for com um numero não inteiro!");
 
-            // Falta verificar os tipos... perde ponto se não o fizer.
             $$.c =  $4.c + $6.c +
                     "  " + $2.v + " = " + $4.v + ";\n" +
                     "  " + var_fim + " = " + $6.v + ";\n" +
@@ -451,7 +450,7 @@ READ : TK_READ '(' E ')'
 ATRIB : TK_ID TK_ATRIB E
         {
           static map<string, string> em_C = inicializaMapEmC();
-          $1.t = consulta_ts( $1.v ) ;
+          $1.t = consulta_ts( $1.v ) ; // checa se existe e retorna tipo
           Tipo tipo1 = $1.t, tipo2 = $3.t;
           if (em_C[tipo1.tipo_base] != em_C[tipo2.tipo_base])
             erro("Variaveis de diferentes tipos nao podem ser atribuidas:" + $1.t.tipo_base + " != " + $3.t.tipo_base);
@@ -466,9 +465,33 @@ ATRIB : TK_ID TK_ATRIB E
           debug( "ATRIB : TK_ID TK_ATRIB E ';'", $$ );
         }
       | TK_ID '[' E ']' TK_ATRIB E
-        { // Falta testar: tipo, limite do array, e se a variável existe
-          $$.c = $3.c + $6.c +
-                 "  " + $1.v + "[" + $3.v + "] = " + $6.v + ";\n";
+        {
+            static map<string, string> em_C = inicializaMapEmC();
+
+            string condicao = gera_nome_var_temp( "b" );
+            string finish = gera_label( "finish" );
+            string continua = gera_label( "continua" );
+
+            $1.t = consulta_ts( $1.v ); // checa se existe e retorna tipo
+
+            Tipo tipo1 = $1.t, tipo2 = $3.t;
+
+            if (em_C[tipo1.tipo_base] != em_C[tipo2.tipo_base])
+                erro("Variaveis de diferentes tipos não podem ser atribuidas.");
+
+            if ($3.t.tipo_base != "i")
+                erro("Indexando array sem ser por inteiro.");
+
+            $$.c =
+                "  " + condicao + " = " + $3.v + " > " + toString($1.t.fim[0]) + ";\n"
+                "  if(" + condicao + ")\n" +
+                "   goto " + finish + ";\n" +
+                "  goto " + continua + ";\n" +
+                "  " + finish + ":\n" +
+                "    exit(1);\n" + // sai do programa se o array for maior, senão continua
+                "  " + continua + ":;\n" +
+                $3.c + $6.c +
+                "  " + $1.v + "[" + $3.v + "] = " + $6.v + ";\n";
         }
       ;
 

@@ -1,5 +1,7 @@
 Program HelloWorld;
 
+Var a : Array [1 .. 10] Of Integer;
+
 Function MDC( a, b : Integer; teste : Real ): Integer;
 Begin
   If a Mod b = 0 Then
@@ -62,6 +64,7 @@ Begin
 End;
 
 Begin
+  a[11] := 0;
   Teste5(2);
   WriteLn( MDC( 48, 32, 1.0 ) );
 End.
