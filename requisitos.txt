@@ -1,28 +1,50 @@
 Para obter 5 pontos:
 
 1) Tipos: int, char, boolean, double, string
+{
+}
 
 2) Estruturas de controle: if/else, for, while, do-while, switch.
+{
+}
 
 3) Array bi-dimensional
+{
+    Missing
+}
 
 4) blocos
+{
+    Wtf
+}
 
-5) Variáveis locais e globais, com escopo.
+5) Variáveis locais e globais, com escopo. {
+    Missing
+}
 
-6) Expressões com precedência e associatividade de operadores
+6) Expressões com precedência e associatividade de operadores {
+    Missing associatividade?
+}
 
-7) funções com parametros por valor e referência
+7) funções com parametros por valor e referência {
+    Missing por referencia
+}
 
-8) concatenação de strings com operador "+"
+8) concatenação de strings com operador "+" {
+    Missing
+}
 
-9) entrada e saida padrao (printf e scanf ou cin/cout)
+9) entrada e saida padrao (printf e scanf ou cin/cout) {
+}
 
-9) verificação de tipos
+9) verificação de tipos {
+}
 
-10) verificação do número e tipo dos parâmetros de funções
+10) verificação do número e tipo dos parâmetros de funções {
+}
 
-11) Operadores básicos: ( ) + - / * % && || ! > < >= <= == != 
+11) Operadores básicos: ( ) + - / * % && || ! > < >= <= == !=  {
+}
 
 
 
@@ -30,12 +52,23 @@ Para obter 5 pontos:
 
 Para nota maior que 5
 
-12) Operadores relacionais para string: "a" < "b", "Ola" != "Olá" etc
+12) Operadores relacionais para string: "a" < "b", "Ola" != "Olá" etc {
+    Missing relacional
+}
 
-13) Verificar limite de arrays e matrizes.
+13) Verificar limite de arrays e matrizes. {
+    Missing
+}
 
-14) Operador de comparacao de arrays: igual e diferente
+14) Operador de comparacao de arrays: igual e diferente {
+    Missing igual
+    Missing diferente
+}
 
-15) Operador "pertence": if( x in tab ), onde tab é um array.
+15) Operador "pertence": if( x in tab ), onde tab é um array. {
+    Missing pertence
+}
 
-16) Rodar os programas exemplo: mdc recursivo, multiplicacao de matrizes e concatenação de strings (serão enviados em breve).
+16) Rodar os programas exemplo: mdc recursivo, multiplicacao de matrizes e concatenação de strings (serão enviados em breve). {
+    Missing programas
+}
