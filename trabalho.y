@@ -472,6 +472,19 @@ READ : TK_READ '(' E ')'
         }
      ;
 
+STR_CMP : TK_ID "==" TK_ID
+        {
+
+        }
+        | TK_ID ">" TK_ID
+        {
+
+        }
+        | TK_ID "<" TK_ID
+        {
+
+        }
+
 ATRIB : TK_ID TK_ATRIB E
         {
           static map<string, string> em_C = inicializaMapEmC();
@@ -667,7 +680,6 @@ F : TK_CINT
     }
   ;
 
-
 EXPRS : EXPRS ',' E
         { $$ = Atributos();
           $$.c = $1.c + $3.c;
@@ -794,11 +806,12 @@ void inicializa_operadores() {
   // Resultados para o operador "OR"
   tipo_opr["b||b"] = "b";
 
-  // Resultados para o operador "="
+  // Resultados para o operador "=="
   tipo_opr["i==i"] = "b";
   tipo_opr["i==d"] = "b";
   tipo_opr["d==i"] = "b";
   tipo_opr["d==d"] = "b";
+  tipo_opr["s==s"] = "s";
 
   // Resultados para o operador "!="
   tipo_opr["i!=i"] = "b";
@@ -930,10 +943,20 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
 
   if( s1.t.tipo_base == "s" && s3.t.tipo_base == "s" )
     // falta testar se é o operador "+"
-    ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
-           "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
-           "  strncat( " + ss.v + ", " + s3.v + ", 256 );\n";
-  else if( s1.t.tipo_base == "s" && s3.t.tipo_base == "c" )
+    string cmp = gera_nome_var_temp("str_cmp")
+    if( opr == "==")
+    {
+      ss.c = s1.c + s3.c+
+            cmp+"= strcmp( "+ s1.v + ", " + s3.v + ")); \n"+
+            ss.v = cmp + " == 0"
+    }
+    else if( opr == "=")
+    {
+      ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
+             "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
+             "  strncat( " + ss.v + ", " + s3.v + ", 256 );\n";
+    }
+    else if( s1.t.tipo_base == "s" && s3.t.tipo_base == "c" )
     ;
   else if( s1.t.tipo_base == "c" && s3.t.tipo_base == "s" )
     ;
