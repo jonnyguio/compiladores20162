@@ -122,11 +122,12 @@ string includes =
 
 %token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB
 %token TK_WRITELN TK_READ TK_CSTRING TK_FUNCTION TK_MOD
-%token TK_MAIG TK_MEIG TK_MENO TK_MAIO TK_DIF TK_IF TK_THEN TK_ELSE TK_AND TK_OR TK_NOT
-%token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT
+%token TK_MAIG TK_MEIG TK_MENO TK_MAIO TK_DIF TK_EQUAL TK_IF TK_THEN TK_ELSE TK_AND TK_OR TK_NOT
+%token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT TK_WHILE
+%token TK_SWITCH TK_CASE TK_DEFAULT
 
 %left TK_AND TK_OR TK_NOT
-%nonassoc TK_MENO TK_MAIO TK_MAIG TK_MEIG '=' TK_DIF
+%nonassoc TK_MENO TK_MAIO TK_MAIG TK_MEIG '=' TK_DIF TK_EQUAL
 %left '+' '-'
 %left '*' '/' TK_MOD
 
@@ -281,7 +282,23 @@ CMD : WRITELN
     | CMD_IF
     | BLOCO
     | CMD_FOR
+    | CMD_WHILE
+    | F
     ;
+
+CMD_WHILE : TK_WHILE E TK_DO CMD
+            {
+                string label_teste = gera_label( "teste_while" );
+                string label_fim = gera_label( "fim_while" );
+
+                $$.c =
+                    "  " + label_teste + ":;\n" +
+                    "  " + $2.c +
+                    "  " + "if( !" + $2.v + " ) goto " + label_fim + ";\n" +
+                    "  " + $4.c +
+                    "  goto " + label_teste  + ";\n"+
+                    "  " + label_fim + ":;\n";
+            }
 
 CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO CMD
           {
@@ -365,7 +382,7 @@ E : E '+' E
     { $$ = gera_codigo_operador( $1, ">", $3 ); }
   | E TK_MENO E
     { $$ = gera_codigo_operador( $1, "<", $3 ); }
-  | E '=' E
+  | E TK_EQUAL E
     { $$ = gera_codigo_operador( $1, "==", $3 ); }
   | E TK_DIF E
     { $$ = gera_codigo_operador( $1, "!=", $3 ); }
@@ -547,6 +564,12 @@ void inicializa_operadores() {
   tipo_opr["i==d"] = "b";
   tipo_opr["d==i"] = "b";
   tipo_opr["d==d"] = "b";
+
+  // Resultados para o operador "!="
+  tipo_opr["i!=i"] = "b";
+  tipo_opr["i!=d"] = "b";
+  tipo_opr["d!=i"] = "b";
+  tipo_opr["d!=d"] = "b";
 }
 
 // Uma tabela de símbolos para cada escopo

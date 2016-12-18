@@ -37,7 +37,10 @@ COMMENT "(*"([^*]|"*"[^)])*"*)"
 "Of"       { yylval = Atributos( yytext ); return TK_OF; }
 "Function" { yylval = Atributos( yytext ); return TK_FUNCTION; }
 "Mod"      { yylval = Atributos( yytext ); return TK_MOD; }
-
+"While"    { yylval = Atributos( yytext ); return TK_WHILE; }
+"Switch"   { yylval = Atributos( yytext ); return TK_SWITCH; }
+"Case"     { yylval = Atributos( yytext ); return TK_CASE; }
+"Default"  { yylval = Atributos( yytext ); return TK_DEFAULT; }
 
 ".."       { yylval = Atributos( yytext ); return TK_PTPT; }
 ":="       { yylval = Atributos( yytext ); return TK_ATRIB; }
@@ -46,6 +49,7 @@ COMMENT "(*"([^*]|"*"[^)])*"*)"
 "<"       { yylval = Atributos( yytext ); return TK_MENO; }
 ">"       { yylval = Atributos( yytext ); return TK_MAIO; }
 "<>"       { yylval = Atributos( yytext ); return TK_DIF; }
+"="       { yylval = Atributos( yytext ); return TK_EQUAL; }
 "And"       { yylval = Atributos( yytext ); return TK_AND; }
 "Or"       { yylval = Atributos( yytext ); return TK_OR; }
 "Not"       { yylval = Atributos( yytext ); return TK_NOT; }
