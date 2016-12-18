@@ -11,4 +11,4 @@ y.tab.c: trabalho.y
 	yacc -v trabalho.y
 
 trabalho: lex.yy.c y.tab.c
-	g++ -std=c++11 -o trabalho y.tab.c /usr/lib/libfl.a
+	g++ -std=c++11 -o trabalho y.tab.c ./libfl.a
