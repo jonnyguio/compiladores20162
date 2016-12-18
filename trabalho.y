@@ -811,7 +811,7 @@ void inicializa_operadores() {
   tipo_opr["i==d"] = "b";
   tipo_opr["d==i"] = "b";
   tipo_opr["d==d"] = "b";
-  tipo_opr["s==s"] = "s";
+  tipo_opr["s==s"] = "b";
 
   // Resultados para o operador "!="
   tipo_opr["i!=i"] = "b";
@@ -948,9 +948,14 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
     {
       ss.c = s1.c + s3.c+
             cmp+"= strcmp( "+ s1.v + ", " + s3.v + ")); \n"+
-            ss.v = cmp + " == 0"
+            ss.v "=" cmp + " == 0 ;\n"
     }
-    else if( opr == "=")
+    else if( opr == "+")
+    {
+      ss.c =  s1.c + s3.c +
+              ss.v " = " + s1.v + " + " + s2.v ";\n"
+    }
+    else
     {
       ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
              "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
