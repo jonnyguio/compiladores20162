@@ -226,9 +226,8 @@ PARAM : IDS ':' TK_ID
       }
     ;
 
-CORPO : TK_VAR VARS BLOCO
-        { $$.c = declara_variavel( "Result", consulta_ts( "Result" ) ) + ";\n" +
-                 $2.c + $3.c; }
+CORPO : TK_VAR VARS CORPO
+        { $$.c = $2.c + $3.c; }
       | BLOCO
         { $$.c = declara_variavel( "Result", consulta_ts( "Result" ) ) + ";\n" +
                  $1.c; }
@@ -333,36 +332,36 @@ CMD_SWITCH : TK_SWITCH F BLOCK_CASE
              }
              ;
 
-BLOCK_CASE : TK_CASE ':' E CMD BLOCK_CASE
+BLOCK_CASE : TK_CASE ':' E TK_BEGIN CMDS TK_END BLOCK_CASE
              {
                  string label_case = gera_label( "case" );
 
-                 $$.label_cases = $5.label_cases;
+                 $$.label_cases = $7.label_cases;
                  $$.label_cases.push_back(label_case);
-                 $$.cmds = $5.cmds;
-                 $$.cmds.push_back($4.c);
-                 $$.values = $5.values;
+                 $$.cmds = $7.cmds;
+                 $$.cmds.push_back($5.c);
+                 $$.values = $7.values;
                  $$.values.push_back($3.v);
-                 $$.dflt = $5.dflt;
+                 $$.dflt = $7.dflt;
              }
-           | TK_CASE ':' E CMD
+           | TK_CASE ':' E TK_BEGIN CMDS TK_END
              {
                  string label_case = gera_label( "case" );
                  string label_cmd = gera_label( "cmd" );
 
                  $$.label_cases.push_back(label_case);
                  $$.label_cmds.push_back(label_cmd);
-                 $$.cmds.push_back($4.c);
+                 $$.cmds.push_back($5.c);
                  $$.values.push_back($3.v);
              }
-           | TK_DEFAULT CMD
+           | TK_DEFAULT TK_BEGIN CMDS TK_END
              {
                  string label_default = gera_label( "default" );
                  string label_cmd = gera_label( "cmd" );
 
                  $$.label_cases.push_back(label_default);
                  $$.label_cmds.push_back(label_cmd);
-                 $$.cmds.push_back($2.c);
+                 $$.cmds.push_back($3.c);
                  $$.values.push_back("-1");
                  $$.dflt = true;
              }
@@ -398,13 +397,13 @@ CMD_WHILE : TK_WHILE E TK_DO TK_BEGIN CMDS TK_END
                     "  " + condicao + " = !" + $2.v + ";\n" +
                     "  " + "if( " + condicao + " )\n" +
                     "  goto " + label_fim + ";\n" +
-                    "  " + $6.c +
+                    "  " + $5.c +
                     "  goto " + label_teste  + ";\n"+
                     "  " + label_fim + ":;\n";
             }
             ;
 
-CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO CMD
+CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO TK_BEGIN CMDS TK_END
           {
             string var_fim = gera_nome_var_temp( $2.t.tipo_base );
             string label_teste = gera_label( "teste_for" );
@@ -419,7 +418,7 @@ CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO CMD
                     "  " +condicao+" = "+$2.v + " > " + var_fim + ";\n" +
                     "  " + "if( " + condicao + " ) goto " + label_fim +
                     ";\n" +
-                    $8.c +
+                    $9.c +
                     "  " + $2.v + " = " + $2.v + " + 1;\n" +
                     "  goto " + label_teste + ";\n" +
                     label_fim + ":;\n";
