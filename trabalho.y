@@ -303,6 +303,7 @@ CMD : WRITELN
 CMD_SWITCH : TK_SWITCH F BLOCK_CASE
              {
                  string leave_label = gera_label( "leave" );
+                 string condicao = gera_nome_var_temp( "b" );
 
                  Tipo tipo = consulta_ts($2.v);
 
@@ -312,10 +313,10 @@ CMD_SWITCH : TK_SWITCH F BLOCK_CASE
                  for (int i = ($3.dflt) ? 1 : 0; i < $3.label_cases.size(); i++) {
                      string else_label = gera_label( "not_case" );
                      $$.c = $$.c +
-                        "  if(" + $2.v + " == " + $3.values[i] + ") \n" +
+                        "  " + condicao + " = " + $2.v + + " == " + $3.values[i] + ";\n"
+                        "  if(" + condicao + ") \n" +
                         "   goto " + $3.label_cases[i] + ";\n" +
-                        "  else\n" +
-                        "   goto " + else_label + ";\n" +
+                        "  goto " + else_label + ";\n" +
                         " " + $3.label_cases[i] + ":\n" +
                         $3.cmds[i] + "\n" +
                         "  goto " + leave_label + ";\n" +
@@ -369,12 +370,15 @@ DO : TK_DO CMD TK_WHILE E
         {
             string label_teste = gera_label( "teste_while" );
             string label_fim = gera_label( "fim_while" );
+            string condicao = gera_nome_var_temp( "b" );
+            string var_condition = gera_nome_var_temp( $4.t.tipo_base );
 
             $$.c =
-                "  " + label_teste + ":;\n" +
+                "  " + label_teste + ":\n" +
+                "  " + condicao + " = " + $4.v + ";\n" +
                 "  " + $2.c +
                 "  " + $4.c +
-                "  " + "if( !" + $4.v + " ) goto " + label_fim + ";\n" +
+                "  " + "if( !" + condicao + " ) goto " + label_fim + ";\n" +
                 "  goto " + label_teste  + ";\n"+
                 "  " + label_fim + ":;\n";
         }
@@ -382,13 +386,17 @@ DO : TK_DO CMD TK_WHILE E
 
 CMD_WHILE : TK_WHILE E TK_DO CMD
             {
+                string var_fim = gera_nome_var_temp( $2.t.tipo_base );
                 string label_teste = gera_label( "teste_while" );
                 string label_fim = gera_label( "fim_while" );
+                string condicao = gera_nome_var_temp( "b" );
 
                 $$.c =
-                    "  " + label_teste + ":;\n" +
+                    "  " + label_teste + ":\n" +
                     "  " + $2.c +
-                    "  " + "if( !" + $2.v + " ) goto " + label_fim + ";\n" +
+                    "  " + condicao + " = !" + $2.v + ";\n" +
+                    "  " + "if( " + condicao + " )\n" +
+                    "  goto " + label_fim + ";\n" +
                     "  " + $4.c +
                     "  goto " + label_teste  + ";\n"+
                     "  " + label_fim + ":;\n";
