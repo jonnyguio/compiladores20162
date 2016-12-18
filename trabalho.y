@@ -297,8 +297,8 @@ CMD : WRITELN
     | CMD_FOR
     | CMD_WHILE
     | DO
-    | F
     | CMD_SWITCH
+    | E
     ;
 
 CMD_SWITCH : TK_SWITCH F BLOCK_CASE
@@ -409,6 +409,9 @@ CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO TK_BEGIN CMDS TK_END
             string label_teste = gera_label( "teste_for" );
             string label_fim = gera_label( "fim_for" );
             string condicao = gera_nome_var_temp( "b" );
+
+            if ($4.t.tipo_base != "i" || $6.t.tipo_base != "i")
+                erro("Tentando fazer for com um numero não inteiro!");
 
             // Falta verificar os tipos... perde ponto se não o fizer.
             $$.c =  $4.c + $6.c +
