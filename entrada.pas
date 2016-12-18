@@ -1,7 +1,6 @@
 Program HelloWorld;
 
 Var y : Boolean;
-
 Function MDC( a, b : Integer; teste : Real ): Integer;
 Begin
   If a Mod b = 0 Then
@@ -26,6 +25,8 @@ Begin
         d := d - 1;
     End While d > 0;
 End;
+
+Var x : Boolean;
 
 Function Teste4(d : Integer): Integer;
 Begin

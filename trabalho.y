@@ -84,6 +84,8 @@ struct Atributos {
 void insere_var_ts( string nome_var, Tipo tipo );
 void insere_funcao_ts( string nome_func, Tipo retorno, vector<Tipo> params );
 Tipo consulta_ts( string nome_var );
+vector<Tipo> consulta_retorno( string nome_func );
+vector<Tipo> consulta_params( string nome_func );
 string declara_variavel( string nome, Tipo tipo );
 string declara_funcao( string nome, Tipo retorno,
                        vector<string> nomes, vector<Tipo> tipos );
@@ -97,6 +99,7 @@ string gera_teste_limite_array( string indice_1, Tipo tipoArray );
 string gera_teste_limite_array( string indice_1, string indice_2,
                                 Tipo tipoArray );
 
+void print( string debug );
 void debug( string producao, Atributos atr );
 int toInt( string valor );
 string toString( int n );
@@ -106,6 +109,8 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 );
 Atributos gera_codigo_if( Atributos expr, string cmd_then, string cmd_else );
 
 string traduz_nome_tipo_pascal( string tipo_pascal );
+
+map<string, string> inicializaMapEmC();
 
 string includes =
 "#include <iostream>\n"
@@ -167,6 +172,7 @@ CABECALHO : TK_FUNCTION TK_ID OPC_PARAM ':' TK_ID
               Tipo tipo( traduz_nome_tipo_pascal( $5.v ) );
 
               $$.c = declara_funcao( $2.v, tipo, $3.lista_str, $3.lista_tipo );
+              insere_funcao_ts( $2.v, tipo, $3.lista_tipo);
             }
           ;
 
@@ -360,8 +366,13 @@ READ : TK_READ '(' E ')'
      ;
 
 ATRIB : TK_ID TK_ATRIB E
-        { // Falta verificar se pode atribuir (perde ponto se não fizer).
+        {
+          static map<string, string> em_C = inicializaMapEmC();
           $1.t = consulta_ts( $1.v ) ;
+          Tipo tipo1 = $1.t, tipo2 = $3.t;
+          if (em_C[tipo1.tipo_base] != em_C[tipo2.tipo_base])
+            erro("Variaveis de diferentes tipos nao podem ser atribuidas:" + $1.t.tipo_base + " != " + $3.t.tipo_base);
+
 
           if( $1.t.tipo_base == "s" )
             $$.c = $3.c + "  strncpy( " + $1.v + ", " + $3.v + ", 256 );\n";
@@ -444,14 +455,29 @@ F : TK_CINT
   | TK_ID
     { $$.v = $1.v; $$.t = consulta_ts( $1.v ); $$.c = $1.c; }
   | TK_ID '(' EXPRS ')'
-    { $$.t = Tipo( "i" ); // consulta_ts( $1.v );
-    // Falta verficar o tipo da função e os parametros.
+    {
+      vector<Tipo> params = consulta_params($1.v);
+      $$.t = consulta_retorno($1.v)[0]; // consulta_ts( $1.v );
       $$.v = gera_nome_var_temp( $$.t.tipo_base );
       $$.c = $3.c + "  " + $$.v + " = " + $1.v + "( ";
 
-      for( int i = 0; i < $3.lista_str.size() - 1; i++ )
-        $$.c += $3.lista_str[i] + ", ";
+    //   print($1.v);
+      for (int i = 0; i < params.size(); i++) {
+            // print(params[i].tipo_base + " " + $3.lista_tipo[i].tipo_base);
+        if (params[i].tipo_base != $3.lista_tipo[i].tipo_base)
+            erro("Parametros incorretos.");
+      }
 
+      for( int i = 0; i < $3.lista_str.size() - 1; i++ ) {
+        //   print(params[i].tipo_base + " " + $3.lista_tipo[i].tipo_base);
+        if (params[i].tipo_base != $3.lista_tipo[i].tipo_base)
+            erro("Parametros incorretos.");
+        $$.c += $3.lista_str[i] + ", ";
+      }
+
+    //   print(params[$3.lista_str.size() - 1].tipo_base + " " + $3.lista_tipo[$3.lista_str.size() - 1].tipo_base);
+      if (params[$3.lista_str.size() - 1].tipo_base != $3.lista_tipo[$3.lista_str.size() - 1].tipo_base)
+        erro("Parametros incorretos.");
       $$.c += $3.lista_str[$3.lista_str.size()-1] + " );\n";
     }
   ;
@@ -460,11 +486,14 @@ F : TK_CINT
 EXPRS : EXPRS ',' E
         { $$ = Atributos();
           $$.c = $1.c + $3.c;
+          $$.lista_tipo = $1.lista_tipo;
+          $$.lista_tipo.push_back( $3.t );
           $$.lista_str = $1.lista_str;
           $$.lista_str.push_back( $3.v ); }
       | E
         { $$ = Atributos();
           $$.c = $1.c;
+          $$.lista_tipo.push_back( $1.t );
           $$.lista_str.push_back( $1.v ); }
       ;
 
@@ -478,6 +507,10 @@ int nlinha = 1;
 #include "lex.yy.c"
 
 int yyparse();
+
+void print( string msg ) {
+    cerr << "Debug: " << msg << endl;
+}
 
 void debug( string producao, Atributos atr ) {
 /*
@@ -609,6 +642,26 @@ Tipo consulta_ts( string nome_var ) {
   erro( "Variável não declarada: " + nome_var );
 
   return Tipo();
+}
+
+vector<Tipo> consulta_retorno( string nome_func ) {
+  for( int i = ts.size()-1; i >= 0; i-- )
+  if( ts[i].find( nome_func ) != ts[i].end() )
+      return ts[i][ nome_func ].retorno;
+
+  erro( "Função não declarada: " + nome_func );
+
+  return vector<Tipo>();
+}
+
+vector<Tipo> consulta_params( string nome_func ) {
+  for( int i = ts.size()-1; i >= 0; i-- )
+    if( ts[i].find( nome_func ) != ts[i].end() )
+      return ts[i][ nome_func ].params;
+
+  erro( "Função não declarada: " + nome_func );
+
+  return vector<Tipo>();
 }
 
 void insere_var_ts( string nome_var, Tipo tipo ) {
