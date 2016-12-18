@@ -278,9 +278,11 @@ MAIN : BLOCO '.'
      ;
 
 BLOCO : TK_BEGIN { var_temp.push_back( "" );} CMDS TK_END
-        { string vars = var_temp[var_temp.size()-1];
+        {
+          string vars = var_temp[var_temp.size()-1];
           var_temp.pop_back();
-          $$.c = vars + $3.c; }
+          $$.c = vars + $3.c;
+        }
       ;
 
 CMDS : CMD ';' CMDS
@@ -366,30 +368,29 @@ BLOCK_CASE : TK_CASE ':' E CMD BLOCK_CASE
              }
            ;
 
-DO : TK_DO CMD TK_WHILE E
+DO : TK_DO TK_BEGIN CMDS TK_END TK_WHILE E
         {
             string label_teste = gera_label( "teste_while" );
             string label_fim = gera_label( "fim_while" );
             string condicao = gera_nome_var_temp( "b" );
-            string var_condition = gera_nome_var_temp( $4.t.tipo_base );
 
             $$.c =
                 "  " + label_teste + ":\n" +
-                "  " + condicao + " = " + $4.v + ";\n" +
-                "  " + $2.c +
-                "  " + $4.c +
-                "  " + "if( !" + condicao + " ) goto " + label_fim + ";\n" +
+                "  " + $3.c +
+                "  " + $6.c +
+                "  " + condicao + " = !" + $6.v + ";\n" +
+                "  " + "if( " + condicao + " ) goto " + label_fim + ";\n" +
                 "  goto " + label_teste  + ";\n"+
                 "  " + label_fim + ":;\n";
         }
     ;
 
-CMD_WHILE : TK_WHILE E TK_DO CMD
+CMD_WHILE : TK_WHILE E TK_DO TK_BEGIN CMDS TK_END
             {
-                string var_fim = gera_nome_var_temp( $2.t.tipo_base );
                 string label_teste = gera_label( "teste_while" );
                 string label_fim = gera_label( "fim_while" );
                 string condicao = gera_nome_var_temp( "b" );
+
 
                 $$.c =
                     "  " + label_teste + ":\n" +
@@ -397,7 +398,7 @@ CMD_WHILE : TK_WHILE E TK_DO CMD
                     "  " + condicao + " = !" + $2.v + ";\n" +
                     "  " + "if( " + condicao + " )\n" +
                     "  goto " + label_fim + ";\n" +
-                    "  " + $4.c +
+                    "  " + $6.c +
                     "  goto " + label_teste  + ";\n"+
                     "  " + label_fim + ":;\n";
             }
@@ -456,8 +457,9 @@ ATRIB : TK_ID TK_ATRIB E
 
           if( $1.t.tipo_base == "s" )
             $$.c = $3.c + "  strncpy( " + $1.v + ", " + $3.v + ", 256 );\n";
-          else
+          else {
             $$.c = $3.c + "  " + $1.v + " = " + $3.v + ";\n";
+          }
 
           debug( "ATRIB : TK_ID TK_ATRIB E ';'", $$ );
         }
