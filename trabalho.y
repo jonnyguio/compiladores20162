@@ -283,7 +283,23 @@ CMD : WRITELN
     | BLOCO
     | CMD_FOR
     | CMD_WHILE
+    | DO
     | F
+    ;
+
+DO : TK_DO CMD TK_WHILE E
+        {
+            string label_teste = gera_label( "teste_while" );
+            string label_fim = gera_label( "fim_while" );
+
+            $$.c =
+                "  " + label_teste + ":;\n" +
+                "  " + $2.c +
+                "  " + $4.c +
+                "  " + "if( !" + $4.v + " ) goto " + label_fim + ";\n" +
+                "  goto " + label_teste  + ";\n"+
+                "  " + label_fim + ":;\n";
+        }
     ;
 
 CMD_WHILE : TK_WHILE E TK_DO CMD
@@ -299,6 +315,7 @@ CMD_WHILE : TK_WHILE E TK_DO CMD
                     "  goto " + label_teste  + ";\n"+
                     "  " + label_fim + ":;\n";
             }
+            ;
 
 CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO CMD
           {
