@@ -10,16 +10,13 @@ Para obter 5 pontos:
 
 3) Array bi-dimensional
 {
-    Missing
 }
 
 4) blocos
 {
-    Wtf
 }
 
 5) Variáveis locais e globais, com escopo. {
-    Missing
 }
 
 6) Expressões com precedência e associatividade de operadores {
@@ -57,7 +54,6 @@ Para nota maior que 5
 }
 
 13) Verificar limite de arrays e matrizes. {
-    Missing
 }
 
 14) Operador de comparacao de arrays: igual e diferente {

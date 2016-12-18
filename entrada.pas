@@ -1,6 +1,7 @@
 Program HelloWorld;
 
-Var a : Array [1 .. 10] Of Integer;
+Var a : Array [3 .. 10] Of Integer;
+Var b : Array [1 .. 5] [1 .. 5] Of Integer;
 
 Function MDC( a, b : Integer; teste : Real ): Integer;
 Begin
@@ -64,7 +65,7 @@ Begin
 End;
 
 Begin
-  a[11] := 0;
-  Teste5(2);
+  b[3][5] := 2;
+  Teste5(b[3][5]);
   WriteLn( MDC( 48, 32, 1.0 ) );
 End.
