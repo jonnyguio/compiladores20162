@@ -68,6 +68,12 @@ struct Atributos {
   Tipo t;
   vector<string> lista_str; // Uma lista auxiliar de strings.
   vector<Tipo> lista_tipo; // Uma lista auxiliar de tipos.
+  // Auxiliares de switch
+  vector<string> label_cases;
+  vector<string> label_cmds;
+  vector<string> cmds;
+  vector<string> values;
+  bool dflt = false;
 
   Atributos() {} // Constutor vazio
   Atributos( string valor ) {
@@ -291,7 +297,73 @@ CMD : WRITELN
     | CMD_WHILE
     | DO
     | F
+    | CMD_SWITCH
     ;
+
+CMD_SWITCH : TK_SWITCH F BLOCK_CASE
+             {
+                 string leave_label = gera_label( "leave" );
+
+                 Tipo tipo = consulta_ts($2.v);
+
+                 if (tipo.tipo_base != "i" && tipo.tipo_base != "c")
+                    erro("Não é possível fazer switch com tipos diferentes de inteiros ou chars.");
+
+                 for (int i = ($3.dflt) ? 1 : 0; i < $3.label_cases.size(); i++) {
+                     string else_label = gera_label( "not_case" );
+                     $$.c = $$.c +
+                        "  if(" + $2.v + " == " + $3.values[i] + ") \n" +
+                        "   goto " + $3.label_cases[i] + ";\n" +
+                        "  else\n" +
+                        "   goto " + else_label + ";\n" +
+                        " " + $3.label_cases[i] + ":\n" +
+                        $3.cmds[i] + "\n" +
+                        "  goto " + leave_label + ";\n" +
+                        "  " + else_label + ":;\n";
+                 }
+
+                 if ($3.dflt)
+                    $$.c = $$.c +
+                        "  "  + $3.cmds[0] + "\n";
+                 $$.c = $$.c +
+                    "  " + leave_label + ":;\n";
+             }
+             ;
+
+BLOCK_CASE : TK_CASE ':' E CMD BLOCK_CASE
+             {
+                 string label_case = gera_label( "case" );
+
+                 $$.label_cases = $5.label_cases;
+                 $$.label_cases.push_back(label_case);
+                 $$.cmds = $5.cmds;
+                 $$.cmds.push_back($4.c);
+                 $$.values = $5.values;
+                 $$.values.push_back($3.v);
+                 $$.dflt = $5.dflt;
+             }
+           | TK_CASE ':' E CMD
+             {
+                 string label_case = gera_label( "case" );
+                 string label_cmd = gera_label( "cmd" );
+
+                 $$.label_cases.push_back(label_case);
+                 $$.label_cmds.push_back(label_cmd);
+                 $$.cmds.push_back($4.c);
+                 $$.values.push_back($3.v);
+             }
+           | TK_DEFAULT CMD
+             {
+                 string label_default = gera_label( "default" );
+                 string label_cmd = gera_label( "cmd" );
+
+                 $$.label_cases.push_back(label_default);
+                 $$.label_cmds.push_back(label_cmd);
+                 $$.cmds.push_back($2.c);
+                 $$.values.push_back("-1");
+                 $$.dflt = true;
+             }
+           ;
 
 DO : TK_DO CMD TK_WHILE E
         {

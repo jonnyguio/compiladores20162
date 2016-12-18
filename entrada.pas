@@ -37,8 +37,24 @@ Begin
     End;
 End;
 
+Function Teste5(arg : Integer): Integer;
 Begin
-  Teste3(0);
-  Teste4(0);
+    Switch arg
+    Case : 1
+      Begin
+        WriteLn(1);
+      End
+    Case : 2
+      Begin
+        WriteLn(2);
+      End
+    Default
+      Begin
+        WriteLn(0);
+      End;
+End;
+
+Begin
+  Teste5(5);
   WriteLn( MDC( 48, 32, 1.0 ) );
 End.
