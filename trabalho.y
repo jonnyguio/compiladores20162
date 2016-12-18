@@ -121,11 +121,11 @@ string includes =
 %}
 
 %token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB
-%token TK_WRITELN TK_CSTRING TK_FUNCTION TK_MOD
+%token TK_WRITELN TK_READ TK_CSTRING TK_FUNCTION TK_MOD
 %token TK_MAIG TK_MEIG TK_MENO TK_MAIO TK_DIF TK_IF TK_THEN TK_ELSE TK_AND TK_OR TK_NOT
 %token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT
 
-%left TK_AND
+%left TK_AND TK_OR TK_NOT
 %nonassoc TK_MENO TK_MAIO TK_MAIG TK_MEIG '=' TK_DIF
 %left '+' '-'
 %left '*' '/' TK_MOD
@@ -277,6 +277,7 @@ CMDS : CMD ';' CMDS
 
 CMD : WRITELN
     | ATRIB
+    | READ
     | CMD_IF
     | BLOCO
     | CMD_FOR
@@ -317,6 +318,12 @@ WRITELN : TK_WRITELN '(' E ')'
                    "  cout << endl;\n";
           }
         ;
+
+READ : TK_READ '(' E ')'
+        {
+            $$.c = $3.c + "  cin >> " + $3.v + ";\n";
+        }
+     ;
 
 ATRIB : TK_ID TK_ATRIB E
         { // Falta verificar se pode atribuir (perde ponto se não fizer).

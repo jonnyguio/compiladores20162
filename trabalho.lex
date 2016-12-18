@@ -26,6 +26,7 @@ COMMENT "(*"([^*]|"*"[^)])*"*)"
 "Begin"    { yylval = Atributos( yytext ); return TK_BEGIN; }
 "End"      { yylval = Atributos( yytext ); return TK_END; }
 "WriteLn"  { yylval = Atributos( yytext ); return TK_WRITELN; }
+"Read"     { yylval = Atributos( yytext ); return TK_READ; }
 "If"       { yylval = Atributos( yytext ); return TK_IF; }
 "Then"     { yylval = Atributos( yytext ); return TK_THEN; }
 "Else"     { yylval = Atributos( yytext ); return TK_ELSE; }
