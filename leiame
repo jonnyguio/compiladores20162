@@ -1,0 +1,26 @@
+- Todos os arquivos de codigo da linguagem estão na pasta "codigosTeste"
+- Os arquivos gerados pelo trabalho saem em codigosGerado
+- Os outputs compilados finais saem em outputs.
+
+ARQUIVOS:
+
+- concatenacaoStrings.br :
+    implementa o codigo passado pelo professor
+- controleDeFluxo.br :
+    testa diversas estruturas de controle de fluxo (switch, while, do while, for), alem de variaveis locais e globais, comparacao de strings...
+- MDC.br
+    implementa o codigo passado pelo professor (MDC)
+- multMatriz.br
+    implemetna o codigo passado pelo professor
+- ref.br
+    testa passagem por referencia
+
+GRAMATICA:
+
+Baseado em Pascal, porém toda em portugues, e com algumas modificacões (tipo tag de referencia).
+
+
+Alunos:
+    Bruno Ferraz    - DRE 114.139.642
+    Gabriel Mattos  - DRE 111.222.983
+    João Guio       - DRE 114.094.151

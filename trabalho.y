@@ -522,15 +522,15 @@ ATRIB : TK_ID TK_ATRIB E
 
             $1.t = consulta_ts( $1.v ) ; // checa se existe e retorna tipo
             Tipo tipo1 = $1.t, tipo2 = $3.t;
-              print("attr");
-              print($1.v);
-              print($3.v);
+            //   print("attr");
+            //   print($1.v);
+            //   print($3.v);
             if (!podeAtribuir(em_C[tipo1.tipo_base], em_C[tipo2.tipo_base]))
             erro("Variaveis de diferentes tipos nao podem ser atribuidas:" + $1.t.tipo_base + " != " + $3.t.tipo_base);
 
             if( $1.t.tipo_base == "s" ) {
-              print($1.t.tipo_base);
-              print($1.v);
+            //   print($1.t.tipo_base);
+            //   print($1.v);
               $$.c = $3.c + "  strncpy( " + $1.v + ", " + $3.v + ", 256 );\n";
             }
             else {
@@ -618,8 +618,7 @@ E : E '+' E
   | E '-' E
     { $$ = gera_codigo_operador( $1, "-", $3 ); }
   | E '*' E
-    {
-        print($1.v); print($3.v); $$ = gera_codigo_operador( $1, "*", $3 ); print("gerado"); }
+    { $$ = gera_codigo_operador( $1, "*", $3 ); }
   | E TK_MOD E
     {
         // print($1.v); print($3.v);
@@ -1092,7 +1091,7 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
     bool isRef3 = consulta_references(s3.v);
 
     ss.t = tipo_resultado( s1.t, opr, s3.t, isRef1, isRef3);
-    print(ss.t.tipo_base);
+    // print(ss.t.tipo_base);
     ss.v = gera_nome_var_temp( ss.t.tipo_base );
 
     if( s1.t.tipo_base == "s" && s3.t.tipo_base == "s" ) {

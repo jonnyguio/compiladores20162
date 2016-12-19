@@ -1,0 +1,17 @@
+programa MDC;
+
+funcao MDC( a, b -> inteiro; teste -> real ) -> inteiro;
+{
+  se a modulo b == 0 entao
+    {
+      resultado = b;
+    }
+  senao
+    {
+      resultado = MDC( b, a modulo b, 1.0 );
+    };
+};
+
+comeca
+  escreval( MDC( 48, 32, 1.0 ) );
+fim.

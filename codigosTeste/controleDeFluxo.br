@@ -6,13 +6,13 @@ var string1, string2 -> string;
 var char1 -> caracter;
 
 funcao Teste5(arg -> inteiro) -> inteiro;
-var x -> inteiro;
+var b -> inteiro;
 var y -> real;
 comeca
     escolher arg
     caso -> 1
       comeca
-        para x = 0 ate 10 faca
+        para b = 0 ate 10 faca
         comeca
           y = 5.0;
           enquanto y > 0.0 faca
