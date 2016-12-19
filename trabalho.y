@@ -137,10 +137,10 @@ string includes =
 %}
 
 %token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB TK_REF
-%token TK_WRITELN TK_READ TK_CSTRING TK_FUNCTION TK_MOD
+%token TK_WRITELN TK_WRITE TK_READ TK_CSTRING TK_FUNCTION TK_MOD
 %token TK_MAIG TK_MEIG TK_MENO TK_MAIO TK_DIF TK_EQUAL TK_IF TK_THEN TK_ELSE TK_AND TK_OR TK_NOT
 %token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT TK_WHILE
-%token TK_SWITCH TK_CASE TK_DEFAULT
+%token TK_SWITCH TK_CASE TK_DEFAULT TK_ARROW
 
 %left TK_AND TK_OR TK_NOT
 %nonassoc TK_MENO TK_MAIO TK_MAIG TK_MEIG '=' TK_DIF TK_EQUAL
@@ -175,10 +175,10 @@ DECL : TK_VAR VARS
 
 FUNCTION : { empilha_ts(); }  CABECALHO ';' CORPO { desempilha_ts(); } ';'
            { $$.c = $2.c + " {\n" + $4.c +
-                    " return Result;\n}\n"; }
+                    " return resultado;\n}\n"; }
          ;
 
-CABECALHO : TK_FUNCTION TK_ID OPC_PARAM ':' TK_ID
+CABECALHO : TK_FUNCTION TK_ID OPC_PARAM TK_ARROW TK_ID
             {
               Tipo tipo( traduz_nome_tipo_pascal( $5.v ) );
 
@@ -208,7 +208,7 @@ PARAMS : PARAM ';' PARAMS
        | PARAM
        ;
 
-PARAM : IDS ':' TK_ID
+PARAM : IDS TK_ARROW TK_ID
       {
         Tipo tipo = Tipo( traduz_nome_tipo_pascal( $3.v ) );
 
@@ -218,7 +218,7 @@ PARAM : IDS ':' TK_ID
         for( int i = 0; i < $1.lista_str.size(); i ++ )
           $$.lista_tipo.push_back( tipo );
       }
-    | IDS ':' TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
+    | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
         Tipo tipo = Tipo( traduz_nome_tipo_pascal( $10.v ),
                           toInt( $5.v ), toInt( $7.v ) );
@@ -229,7 +229,7 @@ PARAM : IDS ':' TK_ID
         for( int i = 0; i < $1.lista_str.size(); i ++ )
           $$.lista_tipo.push_back( tipo );
       }
-    | IDS ':' TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
+    | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
         Tipo tipo = Tipo( traduz_nome_tipo_pascal( $15.v ),
                         toInt( $5.v ), toInt( $7.v ), toInt( $10.v ), toInt( $12.v ));
@@ -258,9 +258,16 @@ PARAM : IDS ':' TK_ID
 CORPO : TK_VAR VARS CORPO
         { $$.c = $2.c + $3.c; }
       | BLOCO
-        { $$.c = declara_variavel( "Result", consulta_ts( "Result" ) ) + ";\n" +
+        { $$.c = declara_variavel( "resultado", consulta_ts( "resultado" ) ) + ";\n" +
                  $1.c; }
       ;
+
+CRIAR_VARS : TK_VAR VAR ';'
+            {
+                print($2.c);
+                $$.c = $2.c;
+            }
+            ;
 
 VARS : VAR ';' VARS
        { $$.c = $1.c + $3.c; }
@@ -268,7 +275,7 @@ VARS : VAR ';' VARS
        { $$ = Atributos(); }
      ;
 
-VAR : IDS ':' TK_ID
+VAR : IDS TK_ARROW TK_ID
       {
         Tipo tipo = Tipo( traduz_nome_tipo_pascal( $3.v ) );
 
@@ -279,7 +286,7 @@ VAR : IDS ':' TK_ID
           insere_var_ts( $1.lista_str[i], tipo );
         }
       }
-    | IDS ':' TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
+    | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
         Tipo tipo = Tipo( traduz_nome_tipo_pascal( $10.v ),
                           toInt( $5.v ), toInt( $7.v ) );
@@ -291,7 +298,7 @@ VAR : IDS ':' TK_ID
           insere_var_ts( $1.lista_str[i], tipo );
         }
       }
-    | IDS ':' TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
+    | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
         Tipo tipo = Tipo( traduz_nome_tipo_pascal( $15.v ),
                         toInt( $5.v ), toInt( $7.v ), toInt( $10.v ), toInt( $12.v ));
@@ -331,6 +338,7 @@ CMDS : CMD ';' CMDS
      ;
 
 CMD : WRITELN
+    | WRITE
     | ATRIB
     | READ
     | CMD_IF
@@ -340,6 +348,7 @@ CMD : WRITELN
     | DO
     | CMD_SWITCH
     | E
+    | CRIAR_VARS
     ;
 
 CMD_SWITCH : TK_SWITCH F BLOCK_CASE
@@ -373,7 +382,7 @@ CMD_SWITCH : TK_SWITCH F BLOCK_CASE
              }
              ;
 
-BLOCK_CASE : TK_CASE ':' E TK_BEGIN CMDS TK_END BLOCK_CASE
+BLOCK_CASE : TK_CASE TK_ARROW E TK_BEGIN CMDS TK_END BLOCK_CASE
              {
                  string label_case = gera_label( "case" );
 
@@ -385,7 +394,7 @@ BLOCK_CASE : TK_CASE ':' E TK_BEGIN CMDS TK_END BLOCK_CASE
                  $$.values.push_back($3.v);
                  $$.dflt = $7.dflt;
              }
-           | TK_CASE ':' E TK_BEGIN CMDS TK_END
+           | TK_CASE TK_ARROW E TK_BEGIN CMDS TK_END
              {
                  string label_case = gera_label( "case" );
                  string label_cmd = gera_label( "cmd" );
@@ -477,8 +486,14 @@ CMD_IF : TK_IF E TK_THEN TK_BEGIN CMDS TK_END
 
 WRITELN : TK_WRITELN '(' E ')'
           { $$.c = $3.c +
-                   "  cout << " + $3.v + ";\n"
+                   "  cout << " + $3.v + ";\n" +
                    "  cout << endl;\n";
+          }
+        ;
+
+WRITE : TK_WRITE '(' E ')'
+          { $$.c = $3.c +
+                   "  cout << " + $3.v + ";\n";
           }
         ;
 
@@ -679,7 +694,6 @@ F : TK_CINT
             erro("Parametros incorretos.");
         if (params[i].isRef)
             $3.lista_str[i] = "&" + $3.lista_str[i];
-            print("&" + $3.lista_str[i]);
       }
 
       for( int i = 0; i < $3.lista_str.size() - 1; i++ ) {
@@ -1066,15 +1080,15 @@ Atributos gera_codigo_if( Atributos expr, string cmd_then, string cmd_else ) {
 string traduz_nome_tipo_pascal( string tipo_pascal ) {
   // No caso do Pascal, a comparacao deveria ser case-insensitive
 
-  if( tipo_pascal == "Integer" )
+  if( tipo_pascal == "inteiro" )
     return "i";
-  else if( tipo_pascal == "Boolean" )
+  else if( tipo_pascal == "booleano" )
     return "b";
-  else if( tipo_pascal == "Real" )
+  else if( tipo_pascal == "real" )
     return "d";
-  else if( tipo_pascal == "Char" )
+  else if( tipo_pascal == "caracter" )
     return "c";
-  else if( tipo_pascal == "String" )
+  else if( tipo_pascal == "string" )
     return "s";
   else
     erro( "Tipo inválido: " + tipo_pascal );
@@ -1090,27 +1104,37 @@ map<string, string> inicializaMapEmC() {
   return aux;
 }
 
+map<string, string> inicializaMapEmCFunc() {
+  map<string, string> aux;
+  aux["i"] = "int ";
+  aux["b"] = "int ";
+  aux["d"] = "double ";
+  aux["c"] = "char ";
+  aux["s"] = "char ";
+  return aux;
+}
 string declara_funcao( string nome, Tipo tipo,
                        vector<string> nomes, vector<Tipo> tipos ) {
-  static map<string, string> em_C = inicializaMapEmC();
+  static map<string, string> em_C = inicializaMapEmCFunc();
 
   if( em_C[ tipo.tipo_base ] == "" )
     erro( "Tipo inválido: " + tipo.tipo_base );
 
-  insere_var_ts( "Result", tipo );
+  insere_var_ts( "resultado", tipo );
 
   if( nomes.size() != tipos.size() )
     erro( "Bug no compilador! Nomes e tipos de parametros diferentes." );
 
   string aux = "";
 
-  for( int i = 0; i < nomes.size(); i++ ) {
+    for( int i = 0; i < nomes.size(); i++ ) {
     aux += declara_variavel( nomes[i], tipos[i] ) +
            (i == nomes.size()-1 ? " " : ", ");
     insere_var_ts( nomes[i], tipos[i] );
   }
 
-  return em_C[ tipo.tipo_base ] + " " + nome + "(" + aux + ")";
+
+  return em_C[ tipo.tipo_base ] + nome + "(" + aux + ")";
 }
 
 string declara_variavel( string nome, Tipo tipo ) {
