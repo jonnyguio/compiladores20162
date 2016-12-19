@@ -14,6 +14,9 @@ all: trabalho codigosTeste/
 	./trabalho < ./codigosTeste/ref.br > codigosGerado/ref.cc
 	./gabarito < codigosGerado/ref.cc
 	g++ -o outputs/saidaref codigosGerado/ref.cc
+	./trabalho < ./codigosTeste/testeIn.br > codigosGerado/testeIn.cc
+	./gabarito < codigosGerado/testeIn.cc
+	g++ -o outputs/saidatestein codigosGerado/testeIn.cc
 
 lex.yy.c: trabalho.lex
 	lex trabalho.lex

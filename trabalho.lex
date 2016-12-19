@@ -46,6 +46,7 @@ COMMENT "(*"([^*]|"*"[^)])*"*)"
 "padrao"    { yylval = Atributos( yytext ); return TK_DEFAULT; }
 "ref"       { yylval = Atributos( yytext ); return TK_REF; }
 "->"        { yylval = Atributos( yytext ); return TK_ARROW; }
+"dentro"    { yylval = Atributos( yytext ); return TK_IN; }
 
 ".."       { yylval = Atributos( yytext ); return TK_PTPT; }
 "="       { yylval = Atributos( yytext ); return TK_ATRIB; }

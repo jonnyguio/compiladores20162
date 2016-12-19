@@ -129,7 +129,7 @@ Atributos gera_codigo_not( Atributos s1 );
 Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 );
 Atributos gera_codigo_if( Atributos expr, string cmd_then, string cmd_else );
 
-string traduz_nome_tipo_pascal( string tipo_pascal );
+string traduz_nome_tipo( string tipo_pascal );
 
 map<string, string> inicializaMapEmC();
 
@@ -149,7 +149,7 @@ string includes =
 %token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB TK_REF
 %token TK_WRITELN TK_WRITE TK_READ TK_CSTRING TK_FUNCTION TK_MOD
 %token TK_MAIG TK_MEIG TK_MENO TK_MAIO TK_DIF TK_EQUAL TK_IF TK_THEN TK_ELSE TK_AND TK_OR TK_NOT
-%token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT TK_WHILE
+%token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT TK_WHILE TK_IN
 %token TK_SWITCH TK_CASE TK_DEFAULT TK_ARROW
 
 %left TK_AND TK_OR TK_NOT
@@ -190,7 +190,7 @@ FUNCTION : { empilha_ts(); empilha_references(); }  CABECALHO ';' CORPO { desemp
 
 CABECALHO : TK_FUNCTION TK_ID OPC_PARAM TK_ARROW TK_ID
             {
-              Tipo tipo( traduz_nome_tipo_pascal( $5.v ) );
+              Tipo tipo( traduz_nome_tipo( $5.v ) );
 
               $$.c = declara_funcao( $2.v, tipo, $3.lista_str, $3.lista_tipo );
               insere_funcao_ts( $2.v, tipo, $3.lista_tipo);
@@ -220,7 +220,7 @@ PARAMS : PARAM ';' PARAMS
 
 PARAM : IDS TK_ARROW TK_ID
       {
-        Tipo tipo = Tipo( traduz_nome_tipo_pascal( $3.v ) );
+        Tipo tipo = Tipo( traduz_nome_tipo( $3.v ) );
 
         $$ = Atributos();
         $$.lista_str = $1.lista_str;
@@ -230,7 +230,7 @@ PARAM : IDS TK_ARROW TK_ID
       }
     | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
-        Tipo tipo = Tipo( traduz_nome_tipo_pascal( $10.v ),
+        Tipo tipo = Tipo( traduz_nome_tipo( $10.v ),
                           toInt( $5.v ), toInt( $7.v ) );
 
         $$ = Atributos();
@@ -241,7 +241,7 @@ PARAM : IDS TK_ARROW TK_ID
       }
     | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
-        Tipo tipo = Tipo( traduz_nome_tipo_pascal( $15.v ),
+        Tipo tipo = Tipo( traduz_nome_tipo( $15.v ),
                         toInt( $5.v ), toInt( $7.v ), toInt( $10.v ), toInt( $12.v ));
 
         $$ = Atributos();
@@ -252,7 +252,7 @@ PARAM : IDS TK_ARROW TK_ID
       }
     | TK_REF IDS TK_ARROW TK_ID
     {
-        Tipo tipo = Tipo( traduz_nome_tipo_pascal( $4.v ) );
+        Tipo tipo = Tipo( traduz_nome_tipo( $4.v ) );
 
         $$ = Atributos();
 
@@ -290,7 +290,7 @@ VARS : VAR ';' VARS
 
 VAR : IDS TK_ARROW TK_ID
       {
-        Tipo tipo = Tipo( traduz_nome_tipo_pascal( $3.v ) );
+        Tipo tipo = Tipo( traduz_nome_tipo( $3.v ) );
 
         $$ = Atributos();
 
@@ -301,7 +301,7 @@ VAR : IDS TK_ARROW TK_ID
       }
     | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
-        Tipo tipo = Tipo( traduz_nome_tipo_pascal( $10.v ),
+        Tipo tipo = Tipo( traduz_nome_tipo( $10.v ),
                           toInt( $5.v ), toInt( $7.v ) );
 
         $$ = Atributos();
@@ -313,7 +313,7 @@ VAR : IDS TK_ARROW TK_ID
       }
     | IDS TK_ARROW TK_ARRAY '[' TK_CINT TK_PTPT TK_CINT ']' '[' TK_CINT TK_PTPT TK_CINT ']' TK_OF TK_ID
       {
-        Tipo tipo = Tipo( traduz_nome_tipo_pascal( $15.v ),
+        Tipo tipo = Tipo( traduz_nome_tipo( $15.v ),
                         toInt( $5.v ), toInt( $7.v ), toInt( $10.v ), toInt( $12.v ));
 
         $$ = Atributos();
@@ -493,7 +493,101 @@ CMD_IF : TK_IF E TK_THEN TK_BEGIN CMDS TK_END
          { $$ = gera_codigo_if( $2, $5.c, "" ); }
        | TK_IF E TK_THEN TK_BEGIN CMDS TK_END TK_ELSE TK_BEGIN CMDS TK_END
          { $$ = gera_codigo_if( $2, $5.c, $9.c ); }
-       ;
+       | TK_IF TK_ID TK_IN TK_ID TK_THEN TK_BEGIN CMDS TK_END
+         {
+             Tipo tipo1 = consulta_ts($2.v);
+             Tipo tipo3 = consulta_ts($4.v);
+
+             string aux;
+             string fim = gera_label( "fim" );
+             string var = gera_nome_var_temp( "b" );
+             string condicao = gera_nome_var_temp ( "b" );
+             string value1 = gera_nome_var_temp ( tipo1.tipo_base );
+             string value2 = gera_nome_var_temp ( tipo3.tipo_base );
+
+             bool isRef = consulta_references($2.v);
+
+             if (tipo1.tipo_base != tipo3.tipo_base) {
+                 erro("Clasula 'in' deve ser feito com operadores de mesmo tipo.");
+             }
+             if (tipo3.ndim == 0) {
+                 erro("Clasula 'in' deve ser feita com um array.");
+             }
+
+             aux +=
+                 "  " + var + " = 0;\n";
+
+             for (int i = tipo3.inicio[0]; i < tipo3.fim[0]; i++) {
+                 string label_proximo = gera_label( "proximo" );
+
+                 aux +=
+                    "  " + value1 + " = " + $2.v + ((isRef) ? "[0]" : "") + ";\n" +
+                    "  " + value2 + " = " + $4.v + "[" + toString(i - tipo3.inicio[0]) + "];\n" +
+                    "  " + condicao + " = " + value1 + " != " + value2 + ";\n" +
+                    "  if (" + condicao + ") \n" +
+                    "   goto " + label_proximo + ";\n" +
+                    "  "  + var + " = 1;\n" +
+                    "  " + label_proximo + ":;\n";
+             }
+
+             $$.c =
+                 $2.c + $4.c + aux +
+                 "  " + var + " = !" + var + ";\n" +
+                 "  if(" + var + ")\n" +
+                 "   goto " + fim + ";\n" +
+                 $7.c +
+                 "  " + fim + ":;\n";
+        }
+        | TK_IF TK_ID TK_IN TK_ID TK_THEN TK_BEGIN CMDS TK_END TK_ELSE TK_BEGIN CMDS TK_END
+          {
+              Tipo tipo1 = consulta_ts($2.v);
+              Tipo tipo3 = consulta_ts($4.v);
+
+              string aux;
+              string fim = gera_label( "fim" );
+              string fim_else = gera_label( "fim_else" );
+              string var = gera_nome_var_temp( "b" );
+              string condicao = gera_nome_var_temp ( "b" );
+              string value1 = gera_nome_var_temp ( tipo1.tipo_base );
+              string value2 = gera_nome_var_temp ( tipo3.tipo_base );
+
+              bool isRef = consulta_references($2.v);
+
+              if (tipo1.tipo_base != tipo3.tipo_base) {
+                  erro("Clasula 'in' deve ser feito com operadores de mesmo tipo.");
+              }
+              if (tipo3.ndim == 0) {
+                  erro("Clasula 'in' deve ser feita com um array.");
+              }
+
+              aux +=
+                  "  " + var + " = 0;\n";
+
+              for (int i = tipo3.inicio[0]; i < tipo3.fim[0]; i++) {
+                  string label_proximo = gera_label( "proximo" );
+
+                  aux +=
+                     "  " + value1 + " = " + $2.v + ((isRef) ? "[0]" : "") + ";\n" +
+                     "  " + value2 + " = " + $4.v + "[" + toString(i - tipo3.inicio[0]) + "];\n" +
+                     "  " + condicao + " = " + value1 + " != " + value2 + ";\n" +
+                     "  if (" + condicao + ") \n" +
+                     "   goto " + label_proximo + ";\n" +
+                     "  "  + var + " = 1;\n" +
+                     "  " + label_proximo + ":;\n";
+              }
+
+              $$.c =
+                  $2.c + $4.c + aux +
+                  "  " + var + " = !" + var + ";\n" +
+                  "  if(" + var + ")\n" +
+                  "   goto " + fim_else + ";\n" +
+                  $7.c +
+                  "  goto " + fim + ";\n" +
+                  "  " + fim_else + ":;\n" +
+                  $11.c +
+                  "  " + fim + ":;\n";
+         }
+        ;
 
 
 WRITELN : TK_WRITELN '(' E ')'
@@ -1077,9 +1171,11 @@ Tipo tipo_resultado( Tipo t1, string opr, Tipo t3, bool isRef1, bool isRef3 ) {
 Atributos gera_codigo_not( Atributos s1 ) {
     Atributos ret;
 
+    bool isRef = consulta_references(s1.v);
+
     ret.t = Tipo("b");
     ret.v = gera_nome_var_temp( "b" );
-    ret.c = s1.c + " " + ret.v + " = !" + s1.v + ";\n";
+    ret.c = s1.c + " " + ret.v + (isRef ? "[0]" : "") + " = !" + s1.v + ";\n";
 
     return ret;
 }
@@ -1206,7 +1302,7 @@ Atributos gera_codigo_if( Atributos expr, string cmd_then, string cmd_else ) {
 }
 
 
-string traduz_nome_tipo_pascal( string tipo_pascal ) {
+string traduz_nome_tipo( string tipo_pascal ) {
   // No caso do Pascal, a comparacao deveria ser case-insensitive
 
   if( tipo_pascal == "inteiro" )
@@ -1247,7 +1343,7 @@ string declara_funcao( string nome, Tipo tipo,
   static map<string, string> em_C = inicializaMapEmCFunc();
 
   if( em_C[ tipo.tipo_base ] == "" ) {
-    erro( "Tipo inválido: " + tipo.tipo_base );
+    erro( "Func - Tipo inválido: " + tipo.tipo_base );
   }
 
   insere_var_ts( "resultado", tipo );
@@ -1273,7 +1369,7 @@ string declara_variavel( string nome, Tipo tipo ) {
 
   if( em_C[ tipo.tipo_base ] == "" ) {
     // print(nome);
-    erro( "Tipo inválido: " + tipo.tipo_base );
+    erro( "Var - Tipo inválido: " + tipo.tipo_base );
   }
 
   string indice, aux;

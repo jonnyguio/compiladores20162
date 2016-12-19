@@ -56,9 +56,7 @@ Para nota maior que 5
 }
 
 15) Operador "pertence": if( x in tab ), onde tab é um array. {
-    Missing pertence
 }
 
 16) Rodar os programas exemplo: mdc recursivo, multiplicacao de matrizes e concatenação de strings (serão enviados em breve). {
-    Missing programas
 }
