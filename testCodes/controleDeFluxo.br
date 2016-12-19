@@ -1,0 +1,52 @@
+programa Testes;
+
+var referencia -> real;
+var b -> array [3 .. 5] [1 .. 4] de inteiro;
+var string1, string2 -> string;
+var char1 -> caracter;
+
+funcao Teste5(arg -> inteiro) -> inteiro;
+var x -> inteiro;
+var y -> real;
+comeca
+    escolher arg
+    caso -> 1
+      comeca
+        para x = 0 ate 10 faca
+        comeca
+          y = 5.0;
+          enquanto y > 0.0 faca
+          comeca
+            y = y - 1.5;
+          fim;
+        fim;
+        escreval(1);
+      fim
+    caso -> 2
+      comeca
+        escreval(2);
+      fim
+    padrao
+      comeca
+        escreval(-1);
+      fim;
+fim;
+
+{
+    b[3][4] = 2;
+    string1 = 'a';
+    string2 = 'bc';
+    char1 = 97;
+    se string1 == char1 entao
+    comeca
+      escreval(string1 + ' igual a ' + char1);
+    fim;
+    se string1 <> char1 entao
+    comeca
+      escreval(string1 + ' diferente de ' + char1);
+    fim;
+    Teste5(1);
+    Teste5(5);
+    Teste5(4);
+    Teste5(2);
+}.

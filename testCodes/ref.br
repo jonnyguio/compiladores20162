@@ -1,14 +1,16 @@
-programa Testes;
+programa Referencia;
 
-var a -> inteiro;
+var a -> real;
 
-funcao TesteRef(ref arg) -> inteiro;
+funcao TesteRef(ref arg -> real;) -> inteiro;
+var y -> real;
 comeca
-    arg = 10;
+    y = 7;
+    arg = arg * y;
 fim;
 
 comeca
-    a = 1;
+    a = 5;
     TesteRef(a);
     escreval(a);
 fim.

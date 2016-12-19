@@ -54,8 +54,6 @@ Para nota maior que 5
 }
 
 14) Operador de comparacao de arrays: igual e diferente {
-    Missing igual
-    Missing diferente
 }
 
 15) Operador "pertence": if( x in tab ), onde tab é um array. {

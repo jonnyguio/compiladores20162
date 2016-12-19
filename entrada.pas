@@ -4,7 +4,7 @@ Var a : Array [3 .. 10] Of Integer;
 Var b : Array [1 .. 5] [1 .. 5] Of Integer;
 Var string1, string2 : String;
 Var char1 : Char;
-Var space : String;
+//Var space : String;
 
 Function MDC( a, b : Integer; teste : Real ): Integer;
 Begin
