@@ -41,6 +41,7 @@ COMMENT "(*"([^*]|"*"[^)])*"*)"
 "Switch"   { yylval = Atributos( yytext ); return TK_SWITCH; }
 "Case"     { yylval = Atributos( yytext ); return TK_CASE; }
 "Default"  { yylval = Atributos( yytext ); return TK_DEFAULT; }
+"Ref"      { yylval = Atributos( yytext ); return TK_REF; }
 
 ".."       { yylval = Atributos( yytext ); return TK_PTPT; }
 ":="       { yylval = Atributos( yytext ); return TK_ATRIB; }

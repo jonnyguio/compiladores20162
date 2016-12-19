@@ -25,6 +25,7 @@ enum TIPO { FUNCAO = -1, BASICO = 0, VETOR = 1, MATRIZ = 2 };
 struct Tipo {
   string tipo_base;
   TIPO ndim;
+  bool isRef; // se é usado como referencia
   int inicio[MAX_DIM];
   int fim[MAX_DIM];
   vector<Tipo> retorno; // usando vector por dois motivos:
@@ -135,7 +136,7 @@ string includes =
 
 %}
 
-%token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB TK_CCHAR
+%token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB TK_REF
 %token TK_WRITELN TK_READ TK_CSTRING TK_FUNCTION TK_MOD
 %token TK_MAIG TK_MEIG TK_MENO TK_MAIO TK_DIF TK_EQUAL TK_IF TK_THEN TK_ELSE TK_AND TK_OR TK_NOT
 %token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT TK_WHILE
@@ -239,6 +240,19 @@ PARAM : IDS ':' TK_ID
         for( int i = 0; i < $1.lista_str.size(); i ++ )
             $$.lista_tipo.push_back( tipo );
       }
+    | TK_REF IDS
+    {
+        Tipo tipo = Tipo( "i" );
+
+        $$ = Atributos();
+
+        $$.lista_str = $2.lista_str;
+
+        tipo.isRef = true;
+        for ( int i = 0; i < $2.lista_str.size(); i++ ) {
+            $$.lista_tipo.push_back( tipo );
+        }
+    }
     ;
 
 CORPO : TK_VAR VARS CORPO
@@ -596,8 +610,6 @@ F : TK_CINT
     { $$.v = $1.v; $$.t = Tipo( "i" ); $$.c = $1.c; }
   | TK_CDOUBLE
     { $$.v = $1.v; $$.t = Tipo( "d" ); $$.c = $1.c; }
-  | TK_CCHAR
-    { print($1.v); $$.v = $1.v; $$.t = Tipo( "c" ); $$.c = $1.c; }
   | TK_CSTRING
     {
         // string x = $1.v;
@@ -665,6 +677,9 @@ F : TK_CINT
             // print(params[i].tipo_base + " " + $3.lista_tipo[i].tipo_base);
         if (params[i].tipo_base != $3.lista_tipo[i].tipo_base)
             erro("Parametros incorretos.");
+        if (params[i].isRef)
+            $3.lista_str[i] = "&" + $3.lista_str[i];
+            print("&" + $3.lista_str[i]);
       }
 
       for( int i = 0; i < $3.lista_str.size() - 1; i++ ) {
