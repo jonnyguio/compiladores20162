@@ -1,0 +1,27 @@
+programa ConcatenacaoStrings;
+
+var nomes1, nomes2, resultado -> string;
+
+funcao formata( a, b, c -> string) -> inteiro;
+{
+    se ( a > b ) entao {
+        c = 'Sr(a). ' + a + ', ' + b;
+    }
+    senao {
+        c = 'Ms (a). ' + b + ', ' + a;
+    };
+};
+
+comeca
+    escreva('digite o seu nome:');
+    leia(nomes1);
+    escreva('digite o seu sobrenome:');
+    leia(nomes2);
+    escreva('\n');
+    formata(nomes1, nomes2, resultado);
+    escreval('Bom dia, ' + resultado);
+    formata('', nomes1 + nomes2, resultado);
+    escreval('Bom dia, ' + resultado);
+    formata(nomes1, ' ' + nomes2, resultado);
+    escreval('Bom dia, ' + resultado);
+fim.

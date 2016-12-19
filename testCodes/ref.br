@@ -1,0 +1,14 @@
+programa Testes;
+
+var a -> inteiro;
+
+funcao TesteRef(ref arg) -> inteiro;
+comeca
+    arg = 10;
+fim;
+
+comeca
+    a = 1;
+    TesteRef(a);
+    escreval(a);
+fim.
