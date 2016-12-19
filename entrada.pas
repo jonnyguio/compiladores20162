@@ -2,21 +2,31 @@ Program HelloWorld;
 
 Var a : Array [3 .. 10] Of Integer;
 Var b : Array [1 .. 5] [1 .. 5] Of Integer;
+Var string1, string2 : String;
+Var char1 : Char;
 
 Function MDC( a, b : Integer; teste : Real ): Integer;
 Begin
   If a Mod b = 0 Then
-    Result := b
+    Begin
+      Result := b;
+    End
   Else
-    Result := MDC( b, a Mod b, 1.0 );
+    Begin
+      Result := MDC( b, a Mod b, 1.0 );
+    End;
 End;
 
 Function Teste( c : Integer; d : Integer): Boolean;
 Begin
     If c >= d Then
-      Result := 1
+      Begin
+        Result := 1;
+        End
     Else
-      Result := Not 0;
+      Begin
+        Result := Not 0;
+      End;
 End;
 
 Function Teste3(d : Integer): Integer;
@@ -66,6 +76,12 @@ End;
 
 Begin
   b[3][5] := 2;
+  string1 := 'Teste';
+  char1 := 'T';
+  If string1 = char1 Then
+  Begin
+    WriteLn(string1 + char1);
+  End;
   Teste5(b[3][5]);
   WriteLn( MDC( 48, 32, 1.0 ) );
 End.

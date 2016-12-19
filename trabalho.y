@@ -133,7 +133,7 @@ string includes =
 
 %}
 
-%token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB
+%token TK_ID TK_CINT TK_CDOUBLE TK_VAR TK_PROGRAM TK_BEGIN TK_END TK_ATRIB TK_CCHAR
 %token TK_WRITELN TK_READ TK_CSTRING TK_FUNCTION TK_MOD
 %token TK_MAIG TK_MEIG TK_MENO TK_MAIO TK_DIF TK_EQUAL TK_IF TK_THEN TK_ELSE TK_AND TK_OR TK_NOT
 %token TK_FOR TK_TO TK_DO TK_ARRAY TK_OF TK_PTPT TK_WHILE
@@ -452,10 +452,10 @@ CMD_FOR : TK_FOR NOME_VAR TK_ATRIB E TK_TO E TK_DO TK_BEGIN CMDS TK_END
           }
         ;
 
-CMD_IF : TK_IF E TK_THEN CMD
-         { $$ = gera_codigo_if( $2, $4.c, "" ); }
-       | TK_IF E TK_THEN CMD TK_ELSE CMD
-         { $$ = gera_codigo_if( $2, $4.c, $6.c ); }
+CMD_IF : TK_IF E TK_THEN TK_BEGIN CMDS TK_END
+         { $$ = gera_codigo_if( $2, $5.c, "" ); }
+       | TK_IF E TK_THEN TK_BEGIN CMDS TK_END TK_ELSE TK_BEGIN CMDS TK_END
+         { $$ = gera_codigo_if( $2, $5.c, $9.c ); }
        ;
 
 
@@ -472,18 +472,6 @@ READ : TK_READ '(' E ')'
         }
      ;
 
-STR_CMP : TK_ID "==" TK_ID
-        {
-
-        }
-        | TK_ID ">" TK_ID
-        {
-
-        }
-        | TK_ID "<" TK_ID
-        {
-
-        }
 
 ATRIB : TK_ID TK_ATRIB E
         {
@@ -493,10 +481,13 @@ ATRIB : TK_ID TK_ATRIB E
           if (em_C[tipo1.tipo_base] != em_C[tipo2.tipo_base])
             erro("Variaveis de diferentes tipos nao podem ser atribuidas:" + $1.t.tipo_base + " != " + $3.t.tipo_base);
 
-
-          if( $1.t.tipo_base == "s" )
-            $$.c = $3.c + "  strncpy( " + $1.v + ", " + $3.v + ", 256 );\n";
+          if( $1.t.tipo_base == "s" ) {
+            //   print($1.t.tipo_base);
+            //   print($1.v);
+              $$.c = $3.c + "  strncpy( " + $1.v + ", " + $3.v + ", 256 );\n";
+          }
           else {
+
             $$.c = $3.c + "  " + $1.v + " = " + $3.v + ";\n";
           }
 
@@ -539,7 +530,7 @@ ATRIB : TK_ID TK_ATRIB E
 
           Tipo tipo1 = $1.t, tipo2 = $9.t;
 
-          print($1.t.tipo_base);
+        //   print($1.t.tipo_base);
 
           if (em_C[tipo1.tipo_base] != em_C[tipo2.tipo_base])
               erro("Variaveis de diferentes tipos não podem ser atribuidas.");
@@ -602,8 +593,15 @@ F : TK_CINT
     { $$.v = $1.v; $$.t = Tipo( "i" ); $$.c = $1.c; }
   | TK_CDOUBLE
     { $$.v = $1.v; $$.t = Tipo( "d" ); $$.c = $1.c; }
+  | TK_CCHAR
+    { print($1.v); $$.v = $1.v; $$.t = Tipo( "c" ); $$.c = $1.c; }
   | TK_CSTRING
-    { $$.v = $1.v; $$.t = Tipo( "s" ); $$.c = $1.c; }
+    {
+        // string x = $1.v;
+        // for (string::iterator it = x.begin(); it != x.end(); ++it) {
+        //     printf("%s\n", *it);
+        // }
+        $$.v = $1.v; $$.t = Tipo( "s" ); $$.c = $1.c; }
   | TK_ID '[' E ']'
     {
       Tipo tipoArray = consulta_ts( $1.v );
@@ -812,12 +810,23 @@ void inicializa_operadores() {
   tipo_opr["d==i"] = "b";
   tipo_opr["d==d"] = "b";
   tipo_opr["s==s"] = "b";
+<<<<<<< HEAD
+=======
+  tipo_opr["s==c"] = "b";
+  tipo_opr["c==s"] = "b";
+  tipo_opr["c==c"] = "b";
+>>>>>>> 6201f13244315e87db7848e7e422474cc928a8d0
 
   // Resultados para o operador "!="
   tipo_opr["i!=i"] = "b";
   tipo_opr["i!=d"] = "b";
   tipo_opr["d!=i"] = "b";
   tipo_opr["d!=d"] = "b";
+  tipo_opr["s!=s"] = "b";
+  tipo_opr["s!=c"] = "b";
+  tipo_opr["c!=s"] = "b";
+  tipo_opr["c!=c"] = "b";
+
 }
 
 // Uma tabela de símbolos para cada escopo
@@ -936,6 +945,7 @@ Atributos gera_codigo_not( Atributos s1 ) {
 }
 
 Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
+<<<<<<< HEAD
   Atributos ss;
 
   ss.t = tipo_resultado( s1.t, opr, s3.t );
@@ -960,17 +970,49 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
       ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
              "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
              "  strncat( " + ss.v + ", " + s3.v + ", 256 );\n";
+=======
+    Atributos ss;
+
+    ss.t = tipo_resultado( s1.t, opr, s3.t );
+    ss.v = gera_nome_var_temp( ss.t.tipo_base );
+
+    if( s1.t.tipo_base == "s" && s3.t.tipo_base == "s" ) {
+        string cmp = gera_nome_var_temp( "b" );
+        if( opr == "==" || opr == "!=") {
+            ss.c =
+            s1.c + s3.c +
+            "  " + cmp + " = strcmp( " + s1.v + ", " + s3.v + "); \n" +
+            ss.v + " = " + cmp + ((opr == "==") ? "==" : "!=") + " 0 " + ";\n";
+        }
+        else if( opr == "+")
+        {
+          ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
+                 "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
+                 "  strncat( " + ss.v + ", " + s3.v + ", 256 );\n";
+        }
     }
-    else if( s1.t.tipo_base == "s" && s3.t.tipo_base == "c" )
-    ;
-  else if( s1.t.tipo_base == "c" && s3.t.tipo_base == "s" )
-    ;
-  else
+    else if( s1.t.tipo_base == "s" && s3.t.tipo_base == "c" ) {
+        if (opr == "==") {
+            string result = gera_nome_var_temp( "b" );
+            string size = gera_nome_var_temp( "b" );
+            ss.c =
+                s1.c + s3.c +
+                "  " + result + " = " + s1.v + "[0] == " + s3.v + ";\n" +
+                "  " + size + " = " + s1.v + "[1] == \'\\0\'" + ";\n" +
+                "  " + result + " = " + result + " && " + size + ";\n";
+        }
+        ;
+>>>>>>> 6201f13244315e87db7848e7e422474cc928a8d0
+    }
+    else if( s1.t.tipo_base == "c" && s3.t.tipo_base == "s" ) {
+        ;
+    }
+    else
     ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
            "  " + ss.v + " = " + s1.v + " " + opr + " " + s3.v + ";\n";
 
-  debug( "E: E " + opr + " E", ss );
-  return ss;
+    debug( "E: E " + opr + " E", ss );
+    return ss;
 }
 
 Atributos gera_codigo_if( Atributos expr, string cmd_then, string cmd_else ) {
