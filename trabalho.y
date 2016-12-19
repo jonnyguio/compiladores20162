@@ -112,6 +112,8 @@ void debug( string producao, Atributos atr );
 int toInt( string valor );
 string toString( int n );
 
+bool podeAtribuir( string tipo1, string tipo2 );
+
 Atributos gera_codigo_not( Atributos s1 );
 Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 );
 Atributos gera_codigo_if( Atributos expr, string cmd_then, string cmd_else );
@@ -476,9 +478,10 @@ READ : TK_READ '(' E ')'
 ATRIB : TK_ID TK_ATRIB E
         {
           static map<string, string> em_C = inicializaMapEmC();
+
           $1.t = consulta_ts( $1.v ) ; // checa se existe e retorna tipo
           Tipo tipo1 = $1.t, tipo2 = $3.t;
-          if (em_C[tipo1.tipo_base] != em_C[tipo2.tipo_base])
+          if (!podeAtribuir(em_C[tipo1.tipo_base], em_C[tipo2.tipo_base]))
             erro("Variaveis de diferentes tipos nao podem ser atribuidas:" + $1.t.tipo_base + " != " + $3.t.tipo_base);
 
           if( $1.t.tipo_base == "s" ) {
@@ -963,19 +966,53 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
         }
     }
     else if( s1.t.tipo_base == "s" && s3.t.tipo_base == "c" ) {
-        if (opr == "==") {
-            string result = gera_nome_var_temp( "b" );
+        if (opr == "==" || opr == "!=") {
             string size = gera_nome_var_temp( "b" );
+            string firstChar = gera_nome_var_temp( "c" );
+            string secondChar = gera_nome_var_temp( "c" );
+
             ss.c =
                 s1.c + s3.c +
-                "  " + result + " = " + s1.v + "[0] == " + s3.v + ";\n" +
-                "  " + size + " = " + s1.v + "[1] == \'\\0\'" + ";\n" +
-                "  " + result + " = " + result + " && " + size + ";\n";
+                "  " + firstChar + " = " + s1.v + "[0];\n" +
+                "  " + secondChar + " = " + s1.v + "[1];\n" +
+                "  " + ss.v + " = " + firstChar + " " + ((opr == "==") ? "==" : "!=") + " " + s3.v + ";\n" +
+                "  " + size + " = " + secondChar + " " + ((opr == "==") ? "==" : "!=") + " 0;\n" +
+                "  " + ss.v + " = " + ss.v + " && " + size + ";\n";
         }
-        ;
+        else if ( opr == "+" ) {
+            string temp = gera_nome_var_temp( "s" );
+
+            ss.c =
+                s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
+                "  " + temp + "[0] = " + s3.v + ";\n" +
+                "  " + temp + "[1] = 0;\n" +
+                "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
+                "  strncat( " + ss.v + ", " + temp + ", 256 );\n";
+        }
     }
     else if( s1.t.tipo_base == "c" && s3.t.tipo_base == "s" ) {
-        ;
+        if (opr == "==" || opr == "!=") {
+            string size = gera_nome_var_temp( "b" );
+            string firstChar = gera_nome_var_temp( "c" );
+            string secondChar = gera_nome_var_temp( "c" );
+            ss.c =
+                s1.c + s3.c +
+                "  " + firstChar + " = " + s1.v + "[0];\n" +
+                "  " + secondChar + " = " + s1.v + "[1];\n" +
+                "  " + ss.v + " = " + firstChar + " " + ((opr == "==") ? "==" : "!=")  + " " + s3.v + ";\n" +
+                "  " + size + " = " + secondChar + " " + ((opr == "==") ? "==" : "!=")  + " 0;\n" +
+                "  " + ss.v + " = " + ss.v + " && " + size + ";\n";
+        }
+        else if ( opr == "+" ) {
+            string temp = gera_nome_var_temp( "s" );
+
+            ss.c =
+                s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
+                "  " + temp + "[0] = " + s1.v + ";\n"+
+                "  " + temp + "[1] = 0;\n" +
+                "  strncpy( " + ss.v + ", " + s3.v + ", 256 );\n" +
+                "  strncat( " + ss.v + ", " + temp + ", 256 );\n";
+        }
     }
     else
     ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
@@ -1145,6 +1182,10 @@ string gera_teste_limite_array( string indice_1, Tipo tipoArray ) {
             "  " + label_end + ":;\n";
 
   return codigo;
+}
+
+bool podeAtribuir( string tipo1, string tipo2 ) {
+    return tipo1 == tipo2 || (tipo1 == "int " && tipo2 == "char ") || (tipo1 == "char " && tipo2 == "int ");
 }
 
 int main( int argc, char* argv[] )

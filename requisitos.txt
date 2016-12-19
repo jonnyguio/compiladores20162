@@ -20,7 +20,6 @@ Para obter 5 pontos:
 }
 
 6) Expressões com precedência e associatividade de operadores {
-    Missing associatividade?
 }
 
 7) funções com parametros por valor e referência {
@@ -28,7 +27,6 @@ Para obter 5 pontos:
 }
 
 8) concatenação de strings com operador "+" {
-    Missing
 }
 
 9) entrada e saida padrao (printf e scanf ou cin/cout) {
@@ -50,7 +48,6 @@ Para obter 5 pontos:
 Para nota maior que 5
 
 12) Operadores relacionais para string: "a" < "b", "Ola" != "Olá" etc {
-    Missing relacional
 }
 
 13) Verificar limite de arrays e matrizes. {

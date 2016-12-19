@@ -4,6 +4,7 @@ Var a : Array [3 .. 10] Of Integer;
 Var b : Array [1 .. 5] [1 .. 5] Of Integer;
 Var string1, string2 : String;
 Var char1 : Char;
+Var space : String;
 
 Function MDC( a, b : Integer; teste : Real ): Integer;
 Begin
@@ -76,8 +77,9 @@ End;
 
 Begin
   b[3][5] := 2;
-  string1 := 'Teste';
-  char1 := 'T';
+  string1 := 'a';
+  char1 := 97;
+  space := ' ';
   If string1 = char1 Then
   Begin
     WriteLn(string1 + char1);
