@@ -2,11 +2,11 @@ programa Referencia;
 
 var a -> real;
 
-funcao TesteRef(ref arg -> real;) -> inteiro;
+funcao TesteRef(ref args -> real;) -> inteiro;
 var y -> real;
 comeca
-    y = 7;
-    arg = arg * y;
+    y = args * 7;
+    args = y;
 fim;
 
 comeca

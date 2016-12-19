@@ -522,23 +522,23 @@ ATRIB : TK_ID TK_ATRIB E
 
             $1.t = consulta_ts( $1.v ) ; // checa se existe e retorna tipo
             Tipo tipo1 = $1.t, tipo2 = $3.t;
-            //   print("attr");
-            //   print($1.v);
-            //   print($3.v);
+              print("attr");
+              print($1.v);
+              print($3.v);
             if (!podeAtribuir(em_C[tipo1.tipo_base], em_C[tipo2.tipo_base]))
             erro("Variaveis de diferentes tipos nao podem ser atribuidas:" + $1.t.tipo_base + " != " + $3.t.tipo_base);
 
             if( $1.t.tipo_base == "s" ) {
-            //   print($1.t.tipo_base);
-            //   print($1.v);
+              print($1.t.tipo_base);
+              print($1.v);
               $$.c = $3.c + "  strncpy( " + $1.v + ", " + $3.v + ", 256 );\n";
             }
             else {
 
                 // print($1.v + $3.v);
-                // print(toString($1.isRef));
 
                 bool isRef = consulta_references($1.v);
+                // print(toString(isRef));
 
                 $$.c =
                     $3.c +
@@ -618,7 +618,8 @@ E : E '+' E
   | E '-' E
     { $$ = gera_codigo_operador( $1, "-", $3 ); }
   | E '*' E
-    { $$ = gera_codigo_operador( $1, "*", $3 ); }
+    {
+        print($1.v); print($3.v); $$ = gera_codigo_operador( $1, "*", $3 ); print("gerado"); }
   | E TK_MOD E
     {
         // print($1.v); print($3.v);
@@ -1059,8 +1060,8 @@ string gera_label( string tipo ) {
   return nome;
 }
 
-Tipo tipo_resultado( Tipo t1, string opr, Tipo t3 ) {
-  if( t1.ndim == 0 && t3.ndim == 0 ) {
+Tipo tipo_resultado( Tipo t1, string opr, Tipo t3, bool isRef1, bool isRef3 ) {
+  if(( t1.ndim == 0 && t3.ndim == 0) || (t1.ndim == 0 && isRef3) || (isRef1 && t3.ndim == 0)) {
     string aux = tipo_opr[ t1.tipo_base + opr + t3.tipo_base ];
 
     if( aux == "" )
@@ -1070,7 +1071,7 @@ Tipo tipo_resultado( Tipo t1, string opr, Tipo t3 ) {
     return Tipo( aux );
   }
   else { // Testes para os operadores de comparacao de array
-    return Tipo();
+      return Tipo();
   }
 }
 
@@ -1087,7 +1088,11 @@ Atributos gera_codigo_not( Atributos s1 ) {
 Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
     Atributos ss;
 
-    ss.t = tipo_resultado( s1.t, opr, s3.t );
+    bool isRef1 = consulta_references(s1.v);
+    bool isRef3 = consulta_references(s3.v);
+
+    ss.t = tipo_resultado( s1.t, opr, s3.t, isRef1, isRef3);
+    print(ss.t.tipo_base);
     ss.v = gera_nome_var_temp( ss.t.tipo_base );
 
     if( s1.t.tipo_base == "s" && s3.t.tipo_base == "s" ) {
@@ -1161,10 +1166,25 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
                 "  strncat( " + ss.v + ", " + temp + ", 256 );\n";
         }
     }
-    else
-    ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
-           "  " + ss.v + " = " + s1.v + " " + opr + " " + s3.v + ";\n";
-
+    else if (isRef1) {
+        string temp = gera_nome_var_temp( s1.t.tipo_base );
+        ss.c =
+            s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
+            "  " + temp + " = " + s1.v + "[0];\n" +
+            "  " + ss.v + " = " + temp + " " + opr + " " + s3.v + ";\n";
+    }
+    else if (isRef3) {
+        string temp = gera_nome_var_temp( s1.t.tipo_base );
+        ss.c =
+            s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
+            "  " + temp + " = " + s3.v + "[0];\n" +
+            "  " + ss.v + " = " + s1.v + " " + opr + " " + temp + ";\n";
+    }
+    else {
+        ss.c =
+            s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
+            "  " + ss.v + " = " + s1.v + " " + opr + " " + s3.v + ";\n";
+    }
     debug( "E: E " + opr + " E", ss );
     return ss;
 }

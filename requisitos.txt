@@ -23,7 +23,6 @@ Para obter 5 pontos:
 }
 
 7) funções com parametros por valor e referência {
-    Missing por referencia
 }
 
 8) concatenação de strings com operador "+" {
