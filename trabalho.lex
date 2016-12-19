@@ -21,39 +21,43 @@ COMMENT "(*"([^*]|"*"[^)])*"*)"
 {DELIM}    {}
 {COMMENT}  {}
 
-"Var"      { yylval = Atributos( yytext ); return TK_VAR; }
-"Program"  { yylval = Atributos( yytext ); return TK_PROGRAM; }
-"Begin"    { yylval = Atributos( yytext ); return TK_BEGIN; }
-"End"      { yylval = Atributos( yytext ); return TK_END; }
-"WriteLn"  { yylval = Atributos( yytext ); return TK_WRITELN; }
-"Read"     { yylval = Atributos( yytext ); return TK_READ; }
-"If"       { yylval = Atributos( yytext ); return TK_IF; }
-"Then"     { yylval = Atributos( yytext ); return TK_THEN; }
-"Else"     { yylval = Atributos( yytext ); return TK_ELSE; }
-"For"      { yylval = Atributos( yytext ); return TK_FOR; }
-"To"       { yylval = Atributos( yytext ); return TK_TO; }
-"Do"       { yylval = Atributos( yytext ); return TK_DO; }
-"Array"    { yylval = Atributos( yytext ); return TK_ARRAY; }
-"Of"       { yylval = Atributos( yytext ); return TK_OF; }
-"Function" { yylval = Atributos( yytext ); return TK_FUNCTION; }
-"Mod"      { yylval = Atributos( yytext ); return TK_MOD; }
-"While"    { yylval = Atributos( yytext ); return TK_WHILE; }
-"Switch"   { yylval = Atributos( yytext ); return TK_SWITCH; }
-"Case"     { yylval = Atributos( yytext ); return TK_CASE; }
-"Default"  { yylval = Atributos( yytext ); return TK_DEFAULT; }
-"Ref"      { yylval = Atributos( yytext ); return TK_REF; }
+"var"       { yylval = Atributos( yytext ); return TK_VAR; }
+"programa"  { yylval = Atributos( yytext ); return TK_PROGRAM; }
+"comeca"    { yylval = Atributos( yytext ); return TK_BEGIN; }
+"{"         { yylval = Atributos( yytext ); return TK_BEGIN; }
+"fim"   { yylval = Atributos( yytext ); return TK_END; }
+"}"         { yylval = Atributos( yytext ); return TK_END; }
+"escreval"  { yylval = Atributos( yytext ); return TK_WRITELN; }
+"escreva"   { yylval = Atributos( yytext ); return TK_WRITE; }
+"leia"      { yylval = Atributos( yytext ); return TK_READ; }
+"se"        { yylval = Atributos( yytext ); return TK_IF; }
+"entao"     { yylval = Atributos( yytext ); return TK_THEN; }
+"senao"     { yylval = Atributos( yytext ); return TK_ELSE; }
+"para"      { yylval = Atributos( yytext ); return TK_FOR; }
+"ate"       { yylval = Atributos( yytext ); return TK_TO; }
+"faca"      { yylval = Atributos( yytext ); return TK_DO; }
+"array"     { yylval = Atributos( yytext ); return TK_ARRAY; }
+"de"        { yylval = Atributos( yytext ); return TK_OF; }
+"funcao"    { yylval = Atributos( yytext ); return TK_FUNCTION; }
+"modulo"    { yylval = Atributos( yytext ); return TK_MOD; }
+"enquanto"  { yylval = Atributos( yytext ); return TK_WHILE; }
+"escolher"  { yylval = Atributos( yytext ); return TK_SWITCH; }
+"caso"      { yylval = Atributos( yytext ); return TK_CASE; }
+"padrao"    { yylval = Atributos( yytext ); return TK_DEFAULT; }
+"ref"       { yylval = Atributos( yytext ); return TK_REF; }
+"->"        { yylval = Atributos( yytext ); return TK_ARROW; }
 
 ".."       { yylval = Atributos( yytext ); return TK_PTPT; }
-":="       { yylval = Atributos( yytext ); return TK_ATRIB; }
+"="       { yylval = Atributos( yytext ); return TK_ATRIB; }
 "<="       { yylval = Atributos( yytext ); return TK_MEIG; }
 ">="       { yylval = Atributos( yytext ); return TK_MAIG; }
 "<"       { yylval = Atributos( yytext ); return TK_MENO; }
 ">"       { yylval = Atributos( yytext ); return TK_MAIO; }
 "<>"       { yylval = Atributos( yytext ); return TK_DIF; }
-"="       { yylval = Atributos( yytext ); return TK_EQUAL; }
-"And"       { yylval = Atributos( yytext ); return TK_AND; }
-"Or"       { yylval = Atributos( yytext ); return TK_OR; }
-"Not"       { yylval = Atributos( yytext ); return TK_NOT; }
+"=="       { yylval = Atributos( yytext ); return TK_EQUAL; }
+"e"       { yylval = Atributos( yytext ); return TK_AND; }
+"ou"       { yylval = Atributos( yytext ); return TK_OR; }
+"nao"       { yylval = Atributos( yytext ); return TK_NOT; }
 
 
 {CSTRING}  { yylval = Atributos( troca_aspas( yytext ), Tipo( "string" ) );
