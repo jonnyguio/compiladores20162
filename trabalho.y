@@ -788,7 +788,7 @@ void inicializa_operadores() {
   tipo_opr["c<i"] = "b";
   //  tipo_opr["c<s"] = "b";
   //  tipo_opr["s<c"] = "b";
-  //  tipo_opr["s<s"] = "b";
+  tipo_opr["s<s"] = "b";
 
   // Resultados para o operador ">"
   tipo_opr["i>i"] = "b";
@@ -798,6 +798,7 @@ void inicializa_operadores() {
   tipo_opr["c>c"] = "b";
   tipo_opr["i>c"] = "b";
   tipo_opr["c>i"] = "b";
+  tipo_opr["s>s"] = "b";
 
   // Resultados para o operador "<="
   tipo_opr["i<=i"] = "b";
@@ -971,13 +972,19 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
             ss.c =
             s1.c + s3.c +
             "  " + cmp + " = strcmp( " + s1.v + ", " + s3.v + "); \n" +
-            ss.v + " = " + cmp + ((opr == "==") ? "==" : "!=") + " 0 " + ";\n";
+            "  " + ss.v + " = " + cmp + ((opr == "==") ? "==" : "!=") + " 0 " + ";\n";
         }
         else if( opr == "+")
         {
           ss.c = s1.c + s3.c + // Codigo das expressões dos filhos da arvore.
                  "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
                  "  strncat( " + ss.v + ", " + s3.v + ", 256 );\n";
+        }
+        else if (opr == "<" || opr == ">")
+        {
+            ss.c =  s1.c + s3.c +
+                    "   " + cmp + " = strcmp( " + s1.v + ", " + s3.v + "); \n" +
+                    "   " + ss.v + " = " + cmp + ((opr == ">")? " > " : " < ") + " 0 ;\n";
         }
     }
     else if( s1.t.tipo_base == "s" && s3.t.tipo_base == "c" ) {
@@ -1004,6 +1011,7 @@ Atributos gera_codigo_operador( Atributos s1, string opr, Atributos s3 ) {
                 "  strncpy( " + ss.v + ", " + s1.v + ", 256 );\n" +
                 "  strncat( " + ss.v + ", " + temp + ", 256 );\n";
         }
+
     }
     else if( s1.t.tipo_base == "c" && s3.t.tipo_base == "s" ) {
         if (opr == "==" || opr == "!=") {

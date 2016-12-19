@@ -77,12 +77,21 @@ End;
 
 Begin
   b[3][5] := 2;
-  string1 := 'a';
+  string1 := 'abc';
+  string2 := 'bbc';
   char1 := 97;
   space := ' ';
   If string1 = char1 Then
   Begin
     WriteLn(string1 + char1);
+  End;
+  If string1 > string2 Then
+  Begin
+    WriteLn('Maior' + string1);
+  End;
+  If string1 < string2 Then
+  Begin
+    WriteLn('Menor' + string2);
   End;
   Teste5(b[3][5]);
   WriteLn( MDC( 48, 32, 1.0 ) );
