@@ -563,7 +563,7 @@ CMD_IF : TK_IF E TK_THEN TK_BEGIN CMDS TK_END
               aux +=
                   "  " + var + " = 0;\n";
 
-              for (int i = tipo3.inicio[0]; i < tipo3.fim[0]; i++) {
+              for (int i = tipo3.inicio[0]; i <= tipo3.fim[0]; i++) {
                   string label_proximo = gera_label( "proximo" );
 
                   aux +=
